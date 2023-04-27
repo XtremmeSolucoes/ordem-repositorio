@@ -272,41 +272,40 @@ class Usuarios extends BaseController
         $caminhoImagem = WRITEPATH . "uploads/$caminhoImagem";
 
         //Podemos manipular a imagem que está salva no diretório
-
+        //Redimissionamento de imagem para 300X300 centro
         
+        $this->manipulaImagem($caminhoImagem, $usuario->id);
 
-        //SE NÃO PREENCHER A SENHA REMOVE DO POST 
+        //A parti daqui podemos atualizar a tabela de usuários
 
-        if (empty($post['password'])) {
+        //recuperar imagem antiga se existir
+        $imagemAntiga =  $usuario->imagem;    
 
-            unset($post['password']);
-            unset($post['password_confirmation']);
+        $usuario->imagem = $imagem->getName();
+
+        $this->usuarioModel->save($usuario);
+
+        if($imagemAntiga != null){
+
+            $this->removeImagemDoFileSystem($imagemAntiga);
+
         }
 
-        // preencher os atributos do usuário com os valores do Post
-
-        $usuario->fill($post);
-
-        if ($usuario->hasChanged() == false) {
-
-            $retorno['info'] = 'Não existem dados para serem atualizados!';
-            return $this->response->setJSON($retorno);
-        }
-
-        if ($this->usuarioModel->protect(false)->save($usuario)) {
-
-            session()->setFlashdata('sucesso', 'Dados salvos com sucesso!');
-
-            return $this->response->setJSON($retorno);
-        }
-
-        //retorno de erros de validação
-
-        $retorno['erro'] = 'Verifique os erros abaixo e tente novamente';
-        $retorno['erros_model'] = $this->usuarioModel->errors();
+        session()->setFlashdata('sucesso', 'Imagem atualizada com sucesso!');
+        
+        
 
         // retorno para o ajax request
         return $this->response->setJSON($retorno);
+    }
+
+    public function imagem(string $imagem = null)
+    {
+        if($imagem != null){
+
+            $this->exibeArquivo('usuarios', $imagem);
+            
+        }
     }
 
 
@@ -323,5 +322,40 @@ class Usuarios extends BaseController
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Não encontramos o usuário $id");
         }
         return $usuario;
+    }
+
+    private function manipulaImagem(string $caminhoImagem, int $usuario_id)
+    {
+        service('image')
+           ->withFile($caminhoImagem)
+           ->fit(300, 300, 'center')
+           ->save($caminhoImagem);
+
+        $anoAtual = date('Y');   
+        
+        //Adcionar Marca D'água de texto
+        \Config\Services::image('imagick')
+           ->withFile($caminhoImagem)
+           ->text("Ordem $anoAtual - User-ID $usuario_id", [
+                'color'      => '#fff',
+                'opacity'    => 0.3,
+                'withShadow' => false,
+                'hAlign'     => 'center',
+                'vAlign'     => 'bottom',
+                'fontSize'   => 15
+           ])
+           ->save($caminhoImagem);
+    }
+
+    private function removeImagemDoFileSystem(string $imagem)
+    {
+
+        $caminhoImagem = WRITEPATH . "uploads/usuarios/$imagem";
+
+        if(is_file($caminhoImagem)){
+
+            unlink($caminhoImagem);
+
+        }
     }
 }
