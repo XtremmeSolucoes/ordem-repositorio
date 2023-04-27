@@ -240,18 +240,40 @@ class Usuarios extends BaseController
             return $this->response->setJSON($retorno);
         }
 
-        exit('tudo certo!');
+        
+
+      
 
         // recuperar o post da requisição
 
         $post = $this->request->getPost();
 
-
-
-
         //validamos a exixtencia do usuário 
 
         $usuario = $this->buscarUsuarioOu404($post['id']);
+
+        //recupera a imagem que veio no post 
+
+        $imagem = $this->request->getFile('imagem');
+
+        list($largura, $altura) = getimagesize($imagem->getPathName());
+
+        if($largura < "300" || $altura < "300"){
+
+            $retorno['erro'] = 'Verifique os erros abaixo e tente novamente';
+            $retorno['erros_model'] = ['dimensao' => 'A imagem não pode ser menor do que 300 X 300 pixels!'];
+
+            // retorno para o ajax request
+            return $this->response->setJSON($retorno);
+
+        }
+
+        $caminhoImagem = $imagem->store('usuarios');
+        $caminhoImagem = WRITEPATH . "uploads/$caminhoImagem";
+
+        //Podemos manipular a imagem que está salva no diretório
+
+        
 
         //SE NÃO PREENCHER A SENHA REMOVE DO POST 
 

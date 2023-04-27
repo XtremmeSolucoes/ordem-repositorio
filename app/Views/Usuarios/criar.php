@@ -91,7 +91,7 @@ $(document).ready(function(){
 
                         $.each(response.erros_model, function(key, value){
                             
-                            $("response").append('<ul class="list-unstyled"><li class="text-danger">' + value + '</li></ul>');
+                            $("#response").append('<ul class="list-unstyled"><li class="text-danger">' + value + '</li></ul>');
 
                         });
 
