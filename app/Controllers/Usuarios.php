@@ -151,8 +151,6 @@ class Usuarios extends BaseController
         $post = $this->request->getPost();
 
 
-
-
         //validamos a exixtencia do usuário 
 
         $usuario = $this->buscarUsuarioOu404($post['id']);
@@ -304,7 +302,7 @@ class Usuarios extends BaseController
         if($imagem != null){
 
             $this->exibeArquivo('usuarios', $imagem);
-            
+
         }
     }
 
