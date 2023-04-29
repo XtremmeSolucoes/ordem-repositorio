@@ -43,8 +43,10 @@
                 </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="<?php echo site_url("usuarios/editar/$usuario->id"); ?>">Editar Usuário</a>
+
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="#">Separated link</a>
+                    <a class="dropdown-item" href="<?php echo site_url("usuarios/excluir/$usuario->id"); ?>">Excluir Usuário</a>
+
                 </div>
             </div>
 

@@ -46,8 +46,32 @@ class Usuarios extends BaseController
 
         foreach ($usuarios as $usuario) {
 
+            //Definimos o caminho da imagem do usuário
+
+            if($usuario->imagem != null){
+
+                //tem imagem
+
+                $imagem = [
+                    'src' => site_url("usuarios/imagem/$usuario->imagem"),
+                    'class' => 'rounded-circle img-fluid',
+                    'alt' => esc($usuario->nome),
+                    'width' => '50',
+                ];
+            }else {
+
+                //não tem imagem
+                 
+                $imagem = [
+                    'src' => site_url("recursos/img/usuario_sem_imagem.png"),
+                    'class' => 'rounded-circle img-fluid',
+                    'alt' => 'Usuário sem Imagem',
+                    'width' => '50',
+                ];
+            }
+
             $data[] = [
-                'imagem' => $usuario->imagem,
+                'imagem' => $usuario->imagem = img($imagem),
                 'nome' => anchor("usuarios/exibir/$usuario->id", esc($usuario->nome), 'title="Exibir dados do usuário ' . esc($usuario->nome) . '"'),
                 'email' => esc($usuario->email),
                 'ativo' => ($usuario->ativo == true ? '<i class="fa fa-unlock text-success"></i>&nbsp;Ativo' : '<i class="fa fa-lock text-danger"></i>&nbsp;Inativo'),
@@ -304,6 +328,37 @@ class Usuarios extends BaseController
             $this->exibeArquivo('usuarios', $imagem);
 
         }
+    }
+
+    public function excluir(int $id = null)
+    {
+
+        $usuario = $this->buscarUsuarioOu404($id);
+
+        if($this->request->getMethod() === 'post'){
+
+            //Excluir o usuário
+            $this->usuarioModel->delete($usuario->id);
+
+            //Deletamos a imagem do fileSystem
+            if($usuario->imagem != null){
+
+                $this->removeImagemDoFileSystem($usuario->imagem);
+
+            }
+
+            
+
+            return redirect()->to(site_url("usuarios"))->with('sucesso', "Usuário $usuario->nome excluído com sucesso!");
+
+        }
+
+        $data = [
+            'titulo' => "Excluindo o usuário " . esc($usuario->nome),
+            'usuario' => $usuario,
+        ];
+
+        return view('Usuarios/excluir', $data);
     }
 
 
