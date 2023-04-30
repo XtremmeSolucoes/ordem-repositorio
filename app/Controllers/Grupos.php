@@ -60,4 +60,32 @@ class Grupos extends BaseController
 
         return $this->response->setJSON($retorno);
     }
+
+    public function exibir(int $id = null)
+    {
+
+        $grupo = $this->buscarGrupoOu404($id);
+
+        $data = [
+            'titulo' => "Detalhes do grupo de acesso " . esc($grupo->nome),
+            'grupo' => $grupo,
+        ];
+
+        return view('Grupos/exibir', $data);
+    }
+
+       /**
+     * Método  que recupera o grupo de acesso
+     * 
+     * @param interger $id
+     * @return Exceptions|object
+     */
+
+     private function buscarGrupoOu404(int $id = null)
+     {
+         if (!$id || !$grupo = $this->grupoModel->withDeleted(true)->find($id)) {
+             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Não encontramos o grupo de acesso $id");
+         }
+         return $grupo;
+     }
 }

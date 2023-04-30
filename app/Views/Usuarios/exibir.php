@@ -13,7 +13,7 @@
 <!-- aqui os conteudos da view  -->
 <div class="row">
     <div class="col-lg-4">
-        <div class="block">
+        <div class="user-block block">
             <div class="text-center">
                 <?php if ($usuario->imagem == null) : ?>
 
