@@ -228,13 +228,13 @@
       <section class="no-padding-top no-padding-bottom">
 
         <div class="container-fluid">
-          
+
           <?php echo $this->include('Layout/_mensagens'); ?>
 
           <!--Espaço reservado para renderizar o conteudo de cada view que estende esse layout-->
 
           <?php echo $this->renderSection('conteudo'); ?>
-          
+
         </div>
 
 
@@ -258,6 +258,14 @@
 
   <!--Espaço reservado para renderizar os scripts de cada view que estende esse layout-->
   <?php echo $this->renderSection('scripts'); ?>
+
+  <script>
+    $(function() {
+      $('[data-toggle="popover"]').popover({
+        html: true,
+      });
+    })
+  </script>
 </body>
 
 </html>

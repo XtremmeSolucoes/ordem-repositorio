@@ -74,6 +74,23 @@ class Grupos extends BaseController
         return view('Grupos/exibir', $data);
     }
 
+    public function editar(int $id = null)
+    {
+
+        $grupo = $this->buscarGrupoOu404($id);
+
+        if($grupo->id < 3){
+            return redirect()->back()->with('atencao', 'Esse Grupo não pode ser editado ou excluido!');
+        }
+
+        $data = [
+            'titulo' => "Editando o grupo de acesso " . esc($grupo->nome),
+            'grupo' => $grupo,
+        ];
+
+        return view('Grupos/editar', $data);
+    }
+
        /**
      * Método  que recupera o grupo de acesso
      * 
