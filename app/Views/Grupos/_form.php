@@ -4,7 +4,7 @@
 </div>
 <div class="form-group">
     <label class="form-control-label">Descrição</label>
-    <textarea name="nome" placeholder="Insira a descrição do Grupo de acesso" class="form-control"><?php echo esc($grupo->descricao); ?></textarea>
+    <textarea name="descricao" placeholder="Insira a descrição do Grupo de acesso" class="form-control"><?php echo esc($grupo->descricao); ?></textarea>
 </div>
 
 

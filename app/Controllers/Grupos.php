@@ -50,7 +50,7 @@ class Grupos extends BaseController
             $data[] = [
                 'nome' => anchor("grupos/exibir/$grupo->id", esc($grupo->nome), 'title="Exibir dados do grupo ' . esc($grupo->nome) . '"'),
                 'descricao' => esc($grupo->descricao),
-                'exibir' => ($grupo->exibir == true ? '<i class="fa fa-eye text-secondary"></i>&nbsp;Exibir Grupo' : '<i class="fa fa-eye-slash text-danger"></i>&nbsp;Não Exibri Grupo'),
+                'exibir' => ($grupo->exibir == true ? '<i class="fa fa-eye text-secondary"></i>&nbsp;Exibir Grupo' : '<i class="fa fa-eye-slash text-danger"></i>&nbsp;Não Exibir Grupo'),
             ];
         }
 
@@ -89,6 +89,58 @@ class Grupos extends BaseController
         ];
 
         return view('Grupos/editar', $data);
+    }
+
+    public function atualizar()
+    {
+        if (!$this->request->isAJAX()) {
+            return redirect()->back();
+        }
+        // envio do token do form
+        $retorno['token'] = csrf_hash();
+
+        // recuperar o post da requisição
+
+        $post = $this->request->getPost();
+
+
+        //validamos a exixtencia do usuário 
+
+        $grupo = $this->buscarGrupoOu404($post['id']);
+
+       //Proteção contra html inject
+
+        if($grupo->id < 3){
+            
+            $retorno['erro'] = 'Verifique os erros abaixo e tente novamente';
+            $retorno['erros_model'] = ['grupo' => 'O Grupo <b class="text-white">' . esc($grupo->nome) . '</b> não pode ser editado ou excluido!'];
+            return $this->response->setJSON($retorno);
+        }
+
+        // preencher os atributos do usuário com os valores do Post
+
+        $grupo->fill($post);
+
+        if ($grupo->hasChanged() == false) {
+
+            $retorno['info'] = 'Não existem dados para serem atualizados!';
+            return $this->response->setJSON($retorno);
+        }
+
+        if ($this->grupoModel->protect(false)->save($grupo)) {
+
+            session()->setFlashdata('sucesso', 'Dados salvos com sucesso!');
+
+            return $this->response->setJSON($retorno);
+        }
+
+        //retorno de erros de validação
+
+        $retorno['erro'] = 'Verifique os erros abaixo e tente novamente';
+        $retorno['erros_model'] = $this->grupoModel->errors();
+
+        // retorno para o ajax request
+        return $this->response->setJSON($retorno);
     }
 
        /**
