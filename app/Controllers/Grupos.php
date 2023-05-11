@@ -61,6 +61,56 @@ class Grupos extends BaseController
         return $this->response->setJSON($retorno);
     }
 
+    public function criar()
+    {
+
+        $grupo = new Grupo();
+
+        $data = [
+            'titulo' => "Criando novo grupo de acesso",
+            'grupo' => $grupo,
+        ];
+
+        return view('Grupos/criar', $data);
+    }
+
+    public function cadastrar()
+    {
+
+        if (!$this->request->isAJAX()) {
+            return redirect()->back();
+        }
+        // envio do token do form
+        $retorno['token'] = csrf_hash();
+
+        // recuperar o post da requisição
+
+        $post = $this->request->getPost();
+
+        //CRIAR NOVO OBJETO DA ENTIDADE uSUÁRIO 
+
+        $grupo = new Grupo($post);
+
+        if ($this->grupoModel->save($grupo)) {
+
+            $btnCriar = anchor("Grupos/criar", 'Cadastrar novo Grupo de acesso', ['class' => 'btn btn-danger mt-2']);
+
+            session()->setFlashdata('sucesso', "Dados salvos com sucesso!<br> $btnCriar");
+
+            $retorno['id'] = $this->grupoModel->getInsertID();
+
+            return $this->response->setJSON($retorno);
+        }
+
+        //retorno de erros de validação
+
+        $retorno['erro'] = 'Verifique os erros abaixo e tente novamente';
+        $retorno['erros_model'] = $this->grupoModel->errors();
+
+        // retorno para o ajax request
+        return $this->response->setJSON($retorno);
+    }
+
     public function exibir(int $id = null)
     {
 
@@ -141,6 +191,34 @@ class Grupos extends BaseController
 
         // retorno para o ajax request
         return $this->response->setJSON($retorno);
+    }
+
+    public function excluir(int $id = null)
+    {
+
+        $grupo = $this->buscarGrupoOu404($id);
+
+        if($grupo->id < 3){
+            return redirect()->back()->with('atencao', 'Esse Grupo não pode ser editado ou excluido!');
+        }
+
+        
+
+        if($this->request->getMethod() === 'post'){
+
+            //Excluir o grupo
+            $this->grupoModel->delete($grupo->id);          
+
+            return redirect()->to(site_url("grupos"))->with('sucesso', 'Grupo ' .esc($grupo->nome) .' excluído com sucesso!');
+
+        }
+
+        $data = [
+            'titulo' => "Excluindo o grupo de acesso " . esc($grupo->nome),
+            'grupo' => $grupo,
+        ];
+
+        return view('Grupos/excluir', $data);
     }
 
        /**
