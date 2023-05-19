@@ -9,10 +9,12 @@ use App\Entities\Grupo;
 class Grupos extends BaseController
 {
     private $grupoModel;
+    private $grupoPermissaoModel;
 
     public function __construct()
     {
         $this->grupoModel = new \App\Models\GrupoModel();
+        $this->grupoPermissaoModel = new \App\Models\GrupoPermissaoModel();
     }
 
     
@@ -219,6 +221,30 @@ class Grupos extends BaseController
         ];
 
         return view('Grupos/excluir', $data);
+    }
+
+    public function permissoes(int $id = null)
+    {
+
+        $grupo = $this->buscarGrupoOu404($id);
+
+        if($grupo->id < 3){
+            return redirect()->back()->with('info', 'Esse Grupo não precisa que seja atribuidas permissões!');
+        }
+
+        if($grupo->id > 2){
+
+            $grupo->permissoes = $this->grupoPermissaoModel->recuperaPermissoesDoGrupo($grupo->id, 5);
+            $grupo->pager = $this->grupoPermissaoModel->pager;
+
+        }
+
+        $data = [
+            'titulo' => "Gerenciando as permissões do grupo de acesso " . esc($grupo->nome),
+            'grupo' => $grupo,
+        ];
+
+        return view('Grupos/permissoes', $data);
     }
 
        /**
