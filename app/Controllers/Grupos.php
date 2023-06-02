@@ -10,11 +10,13 @@ class Grupos extends BaseController
 {
     private $grupoModel;
     private $grupoPermissaoModel;
+    private $permissaoModel;
 
     public function __construct()
     {
         $this->grupoModel = new \App\Models\GrupoModel();
         $this->grupoPermissaoModel = new \App\Models\GrupoPermissaoModel();
+        $this->permissaoModel = new \App\Models\PermissaoModel();
     }
 
     
@@ -243,6 +245,18 @@ class Grupos extends BaseController
             'titulo' => "Gerenciando as permissões do grupo de acesso " . esc($grupo->nome),
             'grupo' => $grupo,
         ];
+
+        if(!empty($grupo->permissoes)){
+
+            $permissoesExistentes = array_column($grupo->permissoes, 'permissao_id');
+
+            $data['permissoesDisponiveis'] = $this->permissaoModel->whereNotIn('id', $permissoesExistentes)->findAll();
+
+        }else {
+
+            $data['permissoesDisponiveis'] = $this->permissaoModel->findAll();
+            
+        }
 
         return view('Grupos/permissoes', $data);
     }
