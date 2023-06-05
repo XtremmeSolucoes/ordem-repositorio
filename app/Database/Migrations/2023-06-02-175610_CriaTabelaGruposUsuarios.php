@@ -4,7 +4,7 @@ namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
 
-class CriaTabelaGruposPermissoes extends Migration
+class CriaTabelaGruposUsuarios extends Migration
 {
     public function up()
     {
@@ -20,7 +20,7 @@ class CriaTabelaGruposPermissoes extends Migration
                 'constraint'     => 5,
                 'unsigned'       => true,
             ],
-            'permissao_id' => [
+            'usuario_id' => [
                 'type'           => 'INT',
                 'constraint'     => 5,
                 'unsigned'       => true,
@@ -30,15 +30,14 @@ class CriaTabelaGruposPermissoes extends Migration
         $this->forge->addKey('id', true);
 
         $this->forge->addForeignKey('grupo_id', 'grupos', 'id', 'CASCADE', 'CASCADE');
-        $this->forge->addForeignKey('permissao_id', 'permissoes', 'id', 'CASCADE', 'CASCADE');
+        $this->forge->addForeignKey('usuario_id', 'usuarios', 'id', 'CASCADE', 'CASCADE');
 
-        $this->forge->createTable('grupos_permissoes');
+        $this->forge->createTable('grupos_usuarios');
     }
 
     public function down()
     {
 
-        $this->forge->dropTable('grupos_permissoes');
+        $this->forge->dropTable('grupos_usuarios');
     }
 }
-

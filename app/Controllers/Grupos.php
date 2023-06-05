@@ -19,7 +19,7 @@ class Grupos extends BaseController
         $this->permissaoModel = new \App\Models\PermissaoModel();
     }
 
-    
+
     public function index()
     {
         $data = [
@@ -133,7 +133,7 @@ class Grupos extends BaseController
 
         $grupo = $this->buscarGrupoOu404($id);
 
-        if($grupo->id < 3){
+        if ($grupo->id < 3) {
             return redirect()->back()->with('atencao', 'Esse Grupo não pode ser editado ou excluido!');
         }
 
@@ -162,10 +162,10 @@ class Grupos extends BaseController
 
         $grupo = $this->buscarGrupoOu404($post['id']);
 
-       //Proteção contra html inject
+        //Proteção contra html inject
 
-        if($grupo->id < 3){
-            
+        if ($grupo->id < 3) {
+
             $retorno['erro'] = 'Verifique os erros abaixo e tente novamente';
             $retorno['erros_model'] = ['grupo' => 'O Grupo <b class="text-white">' . esc($grupo->nome) . '</b> não pode ser editado ou excluido!'];
             return $this->response->setJSON($retorno);
@@ -202,19 +202,18 @@ class Grupos extends BaseController
 
         $grupo = $this->buscarGrupoOu404($id);
 
-        if($grupo->id < 3){
+        if ($grupo->id < 3) {
             return redirect()->back()->with('atencao', 'Esse Grupo não pode ser editado ou excluido!');
         }
 
-        
 
-        if($this->request->getMethod() === 'post'){
+
+        if ($this->request->getMethod() === 'post') {
 
             //Excluir o grupo
-            $this->grupoModel->delete($grupo->id);          
+            $this->grupoModel->delete($grupo->id);
 
-            return redirect()->to(site_url("grupos"))->with('sucesso', 'Grupo ' .esc($grupo->nome) .' excluído com sucesso!');
-
+            return redirect()->to(site_url("grupos"))->with('sucesso', 'Grupo ' . esc($grupo->nome) . ' excluído com sucesso!');
         }
 
         $data = [
@@ -230,15 +229,14 @@ class Grupos extends BaseController
 
         $grupo = $this->buscarGrupoOu404($id);
 
-        if($grupo->id < 3){
+        if ($grupo->id < 3) {
             return redirect()->back()->with('info', 'Esse Grupo não precisa que seja atribuidas permissões!');
         }
 
-        if($grupo->id > 2){
+        if ($grupo->id > 2) {
 
             $grupo->permissoes = $this->grupoPermissaoModel->recuperaPermissoesDoGrupo($grupo->id, 5);
             $grupo->pager = $this->grupoPermissaoModel->pager;
-
         }
 
         $data = [
@@ -246,33 +244,95 @@ class Grupos extends BaseController
             'grupo' => $grupo,
         ];
 
-        if(!empty($grupo->permissoes)){
+        if (!empty($grupo->permissoes)) {
 
             $permissoesExistentes = array_column($grupo->permissoes, 'permissao_id');
 
             $data['permissoesDisponiveis'] = $this->permissaoModel->whereNotIn('id', $permissoesExistentes)->findAll();
-
-        }else {
+        } else {
 
             $data['permissoesDisponiveis'] = $this->permissaoModel->findAll();
-            
         }
 
         return view('Grupos/permissoes', $data);
     }
 
-       /**
+    public function salvarPermissoes()
+    {
+        if (!$this->request->isAJAX()) {
+            return redirect()->back();
+        }
+        // envio do token do form
+        $retorno['token'] = csrf_hash();
+
+        // recuperar o post da requisição
+
+        $post = $this->request->getPost();
+
+
+        //validamos a exixtencia do usuário 
+
+        $grupo = $this->buscarGrupoOu404($post['id']);
+
+        if (empty($post['permissao_id'])) {
+            //retorno de erros de validação
+
+            $retorno['erro'] = 'Verifique os erros abaixo e tente novamente';
+            $retorno['erros_model'] = ['permissao_id' => 'Escolha uma permissão ou mais para salvar!'];
+
+            // retorno para o ajax request
+            return $this->response->setJSON($retorno);
+        }
+
+        //receberá as permissões do POST
+
+        $permissaoPush = [];
+
+        foreach ($post['permissao_id'] as $permissao) {
+
+            array_push($permissaoPush, [
+                'grupo_id' => $grupo->id,
+                'permissao_id' => $permissao,
+            ]);
+        }
+
+        $this->grupoPermissaoModel->insertBatch($permissaoPush);
+
+        session()->setFlashdata('sucesso', 'Dados salvos com sucesso!');
+
+        return $this->response->setJSON($retorno);
+
+
+    }
+
+    public function removePermissao(int $principal_id = null)
+    {
+
+        if ($this->request->getMethod() === 'post') {
+
+            //Excluir o grupo
+            $this->grupoPermissaoModel->delete($principal_id);
+
+            return redirect()->back()->with('sucesso', 'Permissão removida com sucesso!');
+        }
+
+        return redirect()->back();
+    }
+
+   
+
+    /**
      * Método  que recupera o grupo de acesso
      * 
      * @param interger $id
      * @return Exceptions|object
      */
 
-     private function buscarGrupoOu404(int $id = null)
-     {
-         if (!$id || !$grupo = $this->grupoModel->withDeleted(true)->find($id)) {
-             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Não encontramos o grupo de acesso $id");
-         }
-         return $grupo;
-     }
+    private function buscarGrupoOu404(int $id = null)
+    {
+        if (!$id || !$grupo = $this->grupoModel->withDeleted(true)->find($id)) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Não encontramos o grupo de acesso $id");
+        }
+        return $grupo;
+    }
 }

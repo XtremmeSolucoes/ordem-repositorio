@@ -9,10 +9,14 @@ use App\Entities\Usuario;
 class Usuarios extends BaseController
 {
     private $usuarioModel;
+    private $grupoUsuarioModel;
+    private $grupoModel;
 
     public function __construct()
     {
         $this->usuarioModel = new \App\Models\UsuarioModel();
+        $this->grupoUsuarioModel = new \App\Models\GrupoUsuarioModel();
+        $this->grupoModel = new \App\Models\GrupoModel();
     }
 
     public function index()
@@ -359,6 +363,46 @@ class Usuarios extends BaseController
         ];
 
         return view('Usuarios/excluir', $data);
+    }
+
+    public function grupos(int $id = null)
+    {
+
+        $usuario = $this->buscarUsuarioOu404($id);
+
+        $usuario->grupos = $this->grupoUsuarioModel->recuperaGruposDoUsuario($usuario->id, 5);
+        $usuario->pager = $this->grupoUsuarioModel->pager;
+
+        $data = [
+            'titulo' => "Gerenciando os grupos de acesso do usuário " . esc($usuario->nome),
+            'usuario' => $usuario,
+        ];
+
+        if(in_array(2, array_column($usuario->grupos, 'grupo_id'))){
+
+            return view('Usuarios/grupos', $data);
+
+        }
+
+        if(!empty($usuario->grupos)){
+
+            //recuperar os grupos que ainda não estão atribuidos ao usuario
+            $gruposExistentes = array_column($usuario->grupos, 'grupo_id');
+            $data['gruposDisponiveis'] = $this->grupoModel
+                                              ->where('id !=', 4) // Não receramos o grupo de clientes
+                                              ->whereNotIn('id', $gruposExistentes)
+                                              ->findAll();
+
+        }else{
+
+            //recupera todos os grupos permitidos
+            $data['gruposDisponiveis'] = $this->grupoModel
+                                              ->where('id !=', 4) // Não receramos o grupo de clientes
+                                              ->findAll();
+
+        }
+
+        return view('Usuarios/grupos', $data);
     }
 
 
