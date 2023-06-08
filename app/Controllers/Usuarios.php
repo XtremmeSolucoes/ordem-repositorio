@@ -490,6 +490,28 @@ class Usuarios extends BaseController
 
     }
 
+    public function removeGrupo(int $principal_id = null)
+    {
+
+        if($this->request->getMethod() === 'post'){
+
+            $grupoUsuario = $this->buscaGrupoUsuarioOu404($principal_id);
+
+            if($grupoUsuario->grupo_id == 4){
+
+                return redirect()->to(site_url("usuarios/exibir/$grupoUsuario->usuario_id"))->with("info", "Não é permitido a exclusão do usuário do grupo de Clientes!");
+
+            }
+
+            $this->grupoUsuarioModel->delete($principal_id);
+            return redirect()->back()->with("sucesso", "Usuário removido do grupo de acesso com sucesso!");
+
+        }
+
+        return redirect()->back();
+
+    }
+
 
     /**
      * Método  que recupera o usuário
@@ -504,6 +526,22 @@ class Usuarios extends BaseController
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Não encontramos o usuário $id");
         }
         return $usuario;
+    }
+
+    /**
+     * Método que recupera o registro do grupo associado ao usuário
+     * @param integer $principal_id
+     * @return Exception|object
+     */
+
+    private function buscaGrupoUsuarioOu404(int $principal_id = null)
+    {
+        if (!$principal_id || !$grupoUsuario = $this->grupoUsuarioModel->find($principal_id)) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Não encontramos o registro de associação ao grupo de acesso $principal_id");
+        }
+
+        return $grupoUsuario;
+        
     }
 
     private function manipulaImagem(string $caminhoImagem, int $usuario_id)

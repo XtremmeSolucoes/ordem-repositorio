@@ -117,7 +117,7 @@
                                      
                                     <?php 
                                         $atributos = [
-                                            'onSubmit' => "return confirm('Tem certeza da exclusão do acesso?');",
+                                            'onSubmit' => "return confirm('Tem certeza da exclusão do grupo de acesso?');",
 
                                         ]; 
                                     ?>
