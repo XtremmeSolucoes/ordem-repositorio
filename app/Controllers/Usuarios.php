@@ -378,11 +378,22 @@ class Usuarios extends BaseController
             'usuario' => $usuario,
         ];
 
-        if(in_array(2, array_column($usuario->grupos, 'grupo_id'))){
+        //limitando o grupo de acesso do cliente
+        $grupoCliente = 4;
+        if(in_array($grupoCliente, array_column($usuario->grupos, 'grupo_id'))){
 
-            return view('Usuarios/grupos', $data);
-
+            return redirect()->to(site_url("usuarios/exibir/$usuario->id"))
+                             ->with('info', "Não é permitido atribuir grupos de acesso para um Cliente");
         }
+
+        $grupoAdmin = 1;
+        if(in_array($grupoAdmin, array_column($usuario->grupos, 'grupo_id'))){
+
+            $usuario->full_control  = true; //está no grupo de Administrador
+            return view('Usuarios/grupos', $data);
+        }
+
+        $usuario->full_control  = false; // não está no grupo de Administrador
 
         if(!empty($usuario->grupos)){
 
@@ -403,6 +414,80 @@ class Usuarios extends BaseController
         }
 
         return view('Usuarios/grupos', $data);
+    }
+
+    public function salvarGrupos()
+    {
+         // envio do token do form
+         $retorno['token'] = csrf_hash();
+
+         // recuperar o post da requisição
+ 
+         $post = $this->request->getPost();
+ 
+ 
+         //validamos a exixtencia do usuário 
+ 
+         $usuario = $this->buscarUsuarioOu404($post['id']);
+
+         if (empty($post['grupo_id'])) {
+
+            //retorno de erros de validação
+            $retorno['erro'] = 'Verifique os erros abaixo e tente novamente';
+            $retorno['erros_model'] = ['grupo_id' => 'Escolha um grupo ou mais para salvar!'];
+
+            // retorno para o ajax request
+            return $this->response->setJSON($retorno);
+        }
+
+        if(in_array(4, $post['grupo_id'])){
+            //retorno de erros de validação
+            $retorno['erro'] = 'Verifique os erros abaixo e tente novamente';
+            $retorno['erros_model'] = ['grupo_id' => 'O grupo Cliente não pode ser atribuído manualmente!'];
+
+            // retorno para o ajax request
+            return $this->response->setJSON($retorno);
+        }
+
+        if(in_array(1, $post['grupo_id'])){
+
+            $grupoAdmin = [
+                'grupo_id' => 1,
+                'usuario_id' => $usuario->id,
+            ];
+
+            $this->grupoUsuarioModel->insert($grupoAdmin);
+            $this->grupoUsuarioModel->where('grupo_id !=', 1)
+                                    ->where('usuario_id', $usuario->id)
+                                    ->delete();
+
+            session()->setFlashdata('sucesso', 'Dados salvos com sucesso!');
+            session()->setFlashdata('info', 'O grupo Administrador foi selecionado para esse usuário, não é necessario selecionar outro grupo!');
+
+            return $this->response->setJSON($retorno);
+
+        }
+
+
+        //receberá as permissões do POST
+
+        $grupoPush = [];
+
+        foreach ($post['grupo_id'] as $grupo) {
+
+            array_push($grupoPush, [
+                'grupo_id' => $grupo,
+                'usuario_id' => $usuario->id,
+            ]);
+        }
+
+        $this->grupoUsuarioModel->insertBatch($grupoPush);
+
+        session()->setFlashdata('sucesso', 'Dados salvos com sucesso!');
+
+        return $this->response->setJSON($retorno);
+
+
     }
 
 

@@ -22,7 +22,7 @@ class GrupoUsuarioModel extends Model
     public function recuperaGruposDoUsuario(int $usuario_id, int $quantidade_paginacao){
 
         $atributos = [
-            'grupos_usuarios.id',
+            'grupos_usuarios.id AS principal_id',
             'grupos.id AS grupo_id',
             'grupos.nome',
             'grupos.descricao'
