@@ -36,4 +36,19 @@ class GrupoUsuarioModel extends Model
                     ->paginate($quantidade_paginacao);
     }
 
+    /**
+     * Método que recupera o grupo que o usuário logado faz parte
+     * MUITO IMPORTANTE: usamos apenas apenas para definir se o usuario logado é cliente ou admninistrador
+     * @param integer $grupo_id
+     * @param integer $usuario_id
+     * @return null|object
+     */
+
+    public function usuarioEstaNoGrupo(int $grupo_id, int $usuario_id)
+    {
+       return $this->where('grupo_id', $grupo_id)
+                   ->where('usuario_id', $usuario_id)
+                   ->first();  
+    }
+
 }
