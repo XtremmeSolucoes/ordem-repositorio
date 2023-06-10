@@ -19,7 +19,7 @@ class Home extends BaseController
 
     public function login()
     {
-        $autenticacao = new Autenticacao();
+        $autenticacao = service('autenticacao');
 
         $autenticacao->login('erik2@gmail.com', '123456789');
 
