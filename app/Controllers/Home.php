@@ -23,7 +23,7 @@ class Home extends BaseController
 
         $autenticacao->login('erik2@gmail.com', '123456789');
 
-        dd($autenticacao->pegaUsuarioLogado());
+        
 
         //$autenticacao->logout();
         //return redirect()->to(site_url('/'));
