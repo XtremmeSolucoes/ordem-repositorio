@@ -195,7 +195,7 @@ class Usuarios extends BaseController
 
         $usuario->fill($post);
 
-        if ($usuario->hasChanged() == false) {
+        if ($usuario->hasChanged() === false) {
 
             $retorno['info'] = 'Não existem dados para serem atualizados!';
             return $this->response->setJSON($retorno);
@@ -512,6 +512,63 @@ class Usuarios extends BaseController
 
     }
 
+    public function editarSenha()
+    {
+        //Não colocamos ACL aqui
+        $data = [
+            'titulo' => 'Editar senha',
+        ];
+
+        return view('Usuarios/editar_senha', $data);
+
+    }
+
+    public function atualizarsenha()
+    {
+        if (!$this->request->isAJAX()) {
+            return redirect()->back();
+        }
+        // envio do token do form
+        $retorno['token'] = csrf_hash();
+
+        $current_password = $this->request->getPost('current_password');
+
+
+        //Recuperamos o usuário logado
+        $usuario = usuario_logado();
+
+        if($usuario->verificaPassword($current_password) === false)
+        {
+            $retorno['erro'] = 'Por favor verifique os erros abaixo e tente novamente';
+            $retorno['erros_model'] = ['current_password' => 'A senha atual informada é inválida!'];
+            return $this->response->setJSON($retorno);
+        }
+
+        $usuario->fill($this->request->getPost());
+
+
+        if ($usuario->hasChanged() === false) {
+
+            $retorno['info'] = 'Não existem dados para serem atualizados!';
+            return $this->response->setJSON($retorno);
+        }
+
+        if ($this->usuarioModel->save($usuario)) {
+
+            $retorno['sucesso'] = 'Senha alterada com sucesso!';
+
+            return $this->response->setJSON($retorno);
+        }
+
+        //retorno de erros de validação
+
+        $retorno['erro'] = 'Verifique os erros abaixo e tente novamente';
+        $retorno['erros_model'] = $this->usuarioModel->errors();
+
+        // retorno para o ajax request
+        return $this->response->setJSON($retorno);
+
+    }
 
     /**
      * Método  que recupera o usuário
