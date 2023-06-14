@@ -3,6 +3,7 @@
 namespace App\Entities;
 
 use CodeIgniter\Entity\Entity;
+use App\Libraries\Token;
 
 class Usuario extends Entity
 {
@@ -60,6 +61,23 @@ class Usuario extends Entity
 
         //Retornamos o true o usuário logado tem as permissões necessarias 
         return true;
+    }
+
+    /**
+     * Método que inicia a recuperação da senha
+     * 
+     * @return void
+     */
+
+    public function iniciaPasswordReset() : void 
+    {
+        $token = new Token();
+
+        $this->reset_token = $token->getValue();
+
+        $this->reset_hash = $token->getHash();
+
+        $this->reset_expira_em = date('Y-m-d H:i:s', time() + 900);
     }
     
 }

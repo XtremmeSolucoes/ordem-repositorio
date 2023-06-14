@@ -20,7 +20,7 @@
             <div class="logo">
                <h1><?php echo $titulo;  ?></h1>
             </div>
-            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+            <p>Informe seu E-mail de acesso para iniciarmos a recuperação da sua senha!</p>
          </div>
       </div>
    </div>
@@ -37,18 +37,14 @@
 
             <div class="form-group">
                <input id="login-username" type="text" name="email" required data-msg="Por favor informe seu E-mail" class="input-material">
-               <label for="login-username" class="label-material">Seu E-mail de acesso</label>
-            </div>
-            <div class="form-group">
-               <input id="login-password" type="password" name="password" required data-msg="Por favor informe sua senha" class="input-material">
-               <label for="login-password" class="label-material">Sua senha</label>
-            </div>
+               <label for="login-username" class="label-material">Digite o seu E-mail de acesso</label>
+            </div>           
 
-            <input id="btn-login" type="submit" class="btn btn-primary" value="Entrar">
+            <input id="btn-esqueci" type="submit" class="btn btn-primary" value="Enviar">
 
             <?php echo form_close(); ?>
 
-            <a href="<?php echo site_url('esqueci') ?>" class="forgot-pass mt-3">Esqueceu a sua senha?</a>
+            <a href="<?php echo site_url('login') ?>" class="forgot-pass mt-3">Lembrou a sua senha de acesso?</a>
          </div>
       </div>
    </div>
@@ -68,7 +64,7 @@
 
          $.ajax({
             type: 'POST',
-            url: '<?= site_url('login/criar'); ?>',
+            url: '<?= site_url('password/processaesqueci'); ?>',
             data: new FormData(this),
             dataType: 'json',
             contentType: false,
@@ -76,12 +72,12 @@
             processData: false,
             beforeSend: function() {
                $("#response").html('');
-               $("#btn-login").val('Por favor aguarde...');
+               $("#btn-esqueci").val('Por favor aguarde...');
 
             },
             success: function(response) {
-               $("#btn-login").val('Entrar');
-               $("#btn-login").removeAttr("disabled");
+               $("#btn-esqueci").val('Enviar');
+               $("#btn-esqueci").removeAttr("disabled");
                $('[name=csrf_ordem]').val(response.token);
 
 
@@ -89,7 +85,7 @@
 
                   //tudo deu certinho com a atualização do usuário
 
-                  window.location.href = "<?= site_url() ?>" + response.redirect;
+                  window.location.href = "<?= site_url("password/resetenviado") ?>";
 
                }
 
@@ -112,8 +108,8 @@
             },
             error: function() {
                alert('Não foi possível processar a solicitação. Por favor entre em contato com o suporte tecnico!');
-               $("#btn-login").val('Entrar');
-               $("#btn-login").removeAttr("disabled");
+               $("#btn-esqueci").val('Enviar');
+               $("#btn-esqueci").removeAttr("disabled");
             },
          });
       });
