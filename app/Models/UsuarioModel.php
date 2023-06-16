@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use CodeIgniter\Model;
-use PhpParser\Node\Expr\Isset_;
+use App\Libraries\Token;
 
 class UsuarioModel extends Model
 {
@@ -103,5 +103,40 @@ class UsuarioModel extends Model
                    ->where('usuarios.id', $usuario_id)
                    ->groupBy('permissoes.nome')
                    ->findAll();
+    }
+
+    /**
+     * Método que recupera o usuário de acordo com o hash do token
+     * @param string $token
+     * @return null|object
+     */
+
+    public function buscaUsuarioParaRedifinirSenha(string $token)
+    {
+        //Instanciando o objeto da class com o tokem como parâmetro
+        $token = new Token($token);
+
+        //Recuperando o hash do token
+        $tokenHash = $token->getHash();
+
+        //Consultando o usuário com base no hash
+        $usuario = $this->where('reset_hash', $tokenHash)
+                        ->where('deletado_em', null)
+                        ->first();
+
+        //Validando o usuário encontrado
+        if($usuario === null)
+        {
+            return null;
+        }
+
+        //Validamos a válidade do token
+        if($usuario->reset_expira_em < date('Y-m-d H:i:s'))
+        {
+            return null;
+        }
+
+        //Tudo Ok, válidado com sucesso
+        return $usuario;
     }
 }

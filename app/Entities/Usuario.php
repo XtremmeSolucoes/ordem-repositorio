@@ -79,5 +79,17 @@ class Usuario extends Entity
 
         $this->reset_expira_em = date('Y-m-d H:i:s', time() + 900);
     }
+
+    /**
+     * Método que finaliza o processo de redifinição de senha
+     * 
+     * @return void
+     */
+
+    public function finalizaPasswordReset() : void 
+    {
+        $this->reset_hash = null;
+        $this->reset_expira_em = null;
+    }
     
 }
