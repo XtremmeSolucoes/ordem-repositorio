@@ -37,7 +37,7 @@ protected $validationRules = [
     'ie'          => 'required|max_length[25]|is_unique[fornecedores.ie,id,{id}]',
     'email'       => 'required|valid_email|max_length[60]|is_unique[fornecedores.email,id,{id}]',
     'telefone'    => 'required|min_length[10]|max_length[18]|is_unique[fornecedores.telefone,id,{id}]',
-    'cep'         => 'required|min_length[8]|max_length[8]',
+    'cep'         => 'required|min_length[8]|max_length[9]',
     'endereco'    => 'required|min_length[10]|max_length[120]',
     'numero'      => 'max_length[20]',
     'bairro'    => 'required|min_length[5]|max_length[120]',
@@ -78,8 +78,8 @@ protected $validationMessages = [
     ],
     'cep' => [
         'required' => 'O campo CEP é obrigatório!',
-        'min_length' => 'O campo Nome precisa ter no minimo 8 caractéres!',
-        'max_length' => 'O campo Email precisa ter no máximo 8 caractéres!', 
+        'min_length' => 'O campo Nome precisa ter no minimo 9 caractéres!',
+        'max_length' => 'O campo CEP precisa ter no máximo 9 caractéres!', 
     ],
     'endereco' => [
         'required' => 'O campo Endereço é obrigatório!',

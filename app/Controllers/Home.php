@@ -3,10 +3,12 @@
 namespace App\Controllers;
 
 use App\Libraries\Autenticacao;
-use PhpParser\Node\Stmt\Return_;
+use App\Traits\ValidacoesTrait;
 
 class Home extends BaseController
 {
+    use ValidacoesTrait;
+
     public function index()
     {
 
@@ -49,5 +51,12 @@ class Home extends BaseController
             
         }
         
+    }
+
+    public function cep()
+    {
+        $cep = "59114-250";
+
+        return $this->response->setJSON($this->consultaViaCep($cep));
     }
 }
