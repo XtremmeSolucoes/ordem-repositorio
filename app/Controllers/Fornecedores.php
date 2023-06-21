@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Traits\ValidacoesTrait;
+use App\Entities\Fornecedor;
 
 class Fornecedores extends BaseController
 {
@@ -61,6 +62,60 @@ class Fornecedores extends BaseController
         ];
 
         return $this->response->setJSON($retorno);
+    }
+
+    public function criar()
+    {
+
+        $fornecedor = new Fornecedor();
+
+        $data = [
+            'titulo' => "Cadastrar novo Fornecedor ",
+            'fornecedor' => $fornecedor,
+        ];
+
+        return view('fornecedores/criar', $data);
+    }
+
+    public function cadastrar()
+    {
+        if (!$this->request->isAJAX()) {
+            return redirect()->back();
+        }
+        // envio do token do form
+        $retorno['token'] = csrf_hash();
+
+        if(session()->get('blockCep') === true)
+        {
+            $retorno['erro'] = 'Verifique os erros abaixo e tente novamente';
+            $retorno['erros_model'] = ['cep' => 'Informe um CEP válido!'];
+
+            return $this->response->setJSON($retorno);
+        }
+
+        // recuperar o post da requisição
+        $post = $this->request->getPost();
+
+        $fornecedor = new Fornecedor($post);
+        
+        if ($this->fornecedorModel->save($fornecedor)) {
+
+            session()->setFlashdata('sucesso', 'Dados salvos com sucesso!');
+
+            $retorno['id'] = $this->fornecedorModel->getInsertID();
+
+            return $this->response->setJSON($retorno);
+        }
+
+        //retorno de erros de validação
+
+        $retorno['erro'] = 'Verifique os erros abaixo e tente novamente';
+        $retorno['erros_model'] = $this->fornecedorModel->errors();
+
+        // retorno para o ajax request
+        return $this->response->setJSON($retorno);
+
+
     }
 
     public function exibir(int $id = null)
@@ -133,6 +188,26 @@ class Fornecedores extends BaseController
         return $this->response->setJSON($retorno);
 
 
+    }
+
+    public function excluir(int $id = null)
+    {
+        $fornecedor = $this->buscarFornecedorOu404($id);
+
+        if($this->request->getMethod() === 'post')
+        {
+
+            $this->fornecedorModel->delete($id);
+
+            return redirect()->to(site_url("fornecedores"))->with('sucesso', "Fornecedor $fornecedor->razao excluído com sucesso!");
+        }
+
+        $data = [
+            'titulo' => "Excluindo o Fornecedor " . esc($fornecedor->nome),
+            'fornecedor' => $fornecedor,
+        ];
+
+        return view('fornecedores/excluir', $data);
     }
 
     public function consultaCep()
