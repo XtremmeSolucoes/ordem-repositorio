@@ -59,6 +59,13 @@ abstract class BaseController extends Controller
     protected function exibeArquivo(string $destino, string $arquivo)
     {
         $path = WRITEPATH . "uploads/$destino/$arquivo";
+
+        if(is_file($path) === false)
+        {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Não encontramos o arquivo! $arquivo");
+        }
+
+
         $fileInfo = new \finfo(FILEINFO_MIME);
         $fileType = $fileInfo->file($path);
         $fileSize = filesize($path);

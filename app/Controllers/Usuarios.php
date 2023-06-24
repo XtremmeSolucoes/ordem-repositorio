@@ -255,7 +255,7 @@ class Usuarios extends BaseController
 
         $validacao->setRules($regras, $mensagens);
 
-        if ($validacao->withRequest($this->request)->run() == false) {
+        if ($validacao->withRequest($this->request)->run() === false) {
 
             //retorno de erros de validação
 
