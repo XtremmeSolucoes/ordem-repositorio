@@ -49,20 +49,20 @@ protected $validationRules = [
 protected $validationMessages = [
     'razao' => [
         'required' => 'O campo Razão Social é obrigatório!',
-        'min_length' => 'O campo Nome precisa ter no minimo 5 caractéres!',
-        'max_length' => 'O campo Nome precisa ter no máximo 230 caractéres!',
+        'min_length' => 'O campo Razão precisa ter no minimo 5 caractéres!',
+        'max_length' => 'O campo Razão precisa ter no máximo 230 caractéres!',
         'is_unique' => 'Essa Razão Social já está em uso, por favor informe uma Razão Social diferente!',
     ],
     'cnpj' => [
         'required' => 'O campo cnpj é obrigatório!',
         'validaCNPJ' => 'O campo CNPJ precisa de um CNPJ válido!',
-        'max_length' => 'O campo Email precisa ter no máximo 25 caractéres!', 
+        'max_length' => 'O campo CNPJ precisa ter no máximo 25 caractéres!', 
         'is_unique' => 'Essa Inscrição Estadual já está em uso, por favor informe um CNPJ diferente!',
     ],
     'ie' => [
         'required' => 'O campo Inscrição Estadual é obrigatório!',
-        'max_length' => 'O campo Email precisa ter no máximo 25 caractéres!', 
-        'is_unique' => 'Esse CNPJ já está em uso, por favor informe uma Inscrição Social diferente!',
+        'max_length' => 'O campo IE precisa ter no máximo 25 caractéres!', 
+        'is_unique' => 'Esse IE já está em uso, por favor informe uma Inscrição estadual diferente!',
     ],
     'email' => [
         'required' => 'O campo Email é obrigatório!',
@@ -72,44 +72,38 @@ protected $validationMessages = [
     ],
     'telefone' => [
         'required' => 'O campo Telefone é obrigatório!',
-        'min_length' => 'O campo Nome precisa ter no minimo 10 caractéres!',
-        'max_length' => 'O campo Email precisa ter no máximo 18 caractéres!', 
+        'min_length' => 'O campo Telefone precisa ter no minimo 10 caractéres!',
+        'max_length' => 'O campo Telefone precisa ter no máximo 18 caractéres!', 
         'is_unique' => 'Esse Telefone já está em uso, por favor informe um telefone diferente!',
     ],
     'cep' => [
         'required' => 'O campo CEP é obrigatório!',
-        'min_length' => 'O campo Nome precisa ter no minimo 9 caractéres!',
+        'min_length' => 'O campo CEP precisa ter no minimo 9 caractéres!',
         'max_length' => 'O campo CEP precisa ter no máximo 9 caractéres!', 
     ],
     'endereco' => [
         'required' => 'O campo Endereço é obrigatório!',
-        'min_length' => 'O campo Nome precisa ter no minimo 10 caractéres!',
-        'max_length' => 'O campo Email precisa ter no máximo 120 caractéres!', 
-    ],
-    'telefone' => [
-        'required' => 'O campo Telefone é obrigatório!',
-        'min_length' => 'O campo Nome precisa ter no minimo 10 caractéres!',
-        'max_length' => 'O campo Email precisa ter no máximo 18 caractéres!', 
-        'is_unique' => 'Esse Telefone já está em uso, por favor informe um telefone diferente!',
+        'min_length' => 'O campo Endereço precisa ter no minimo 10 caractéres!',
+        'max_length' => 'O campo Endereço precisa ter no máximo 120 caractéres!', 
     ],
     'numero' => [
-        'max_length' => 'O campo Email precisa ter no máximo 20 caractéres!', 
+        'max_length' => 'O campo Número precisa ter no máximo 20 caractéres!', 
 
     ],
     'bairro' => [
         'required' => 'O campo Bairro é obrigatório!',
-        'min_length' => 'O campo Nome precisa ter no minimo 5 caractéres!',
-        'max_length' => 'O campo Email precisa ter no máximo 120 caractéres!', 
+        'min_length' => 'O campo Bairro precisa ter no minimo 5 caractéres!',
+        'max_length' => 'O campo Bairro precisa ter no máximo 120 caractéres!', 
     ],
     'cidade' => [
         'required' => 'O campo Cidade é obrigatório!',
-        'min_length' => 'O campo Nome precisa ter no minimo 5 caractéres!',
-        'max_length' => 'O campo Email precisa ter no máximo 28 caractéres!', 
+        'min_length' => 'O campo Cidade precisa ter no minimo 5 caractéres!',
+        'max_length' => 'O campo Cidade precisa ter no máximo 28 caractéres!', 
     ],
     'estado' => [
         'required' => 'O campo Estado é obrigatório!',
-        'min_length' => 'O campo Nome precisa ter no minimo 02 caractéres!',
-        'max_length' => 'O campo Email precisa ter no máximo 02 caractéres!', 
+        'min_length' => 'O campo Estado precisa ter no minimo 02 caractéres!',
+        'max_length' => 'O campo Estado precisa ter no máximo 02 caractéres!', 
     ],
 
 ];
