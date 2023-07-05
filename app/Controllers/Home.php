@@ -25,7 +25,7 @@ class Home extends BaseController
 
         $autenticacao->login('erik2@gmail.com', '123456789');
 
-        
+
 
         //$autenticacao->logout();
         //return redirect()->to(site_url('/'));
@@ -41,16 +41,12 @@ class Home extends BaseController
         $email->setTo('adrianofertimbeta@gmail.com');
         $email->setSubject('Teste de recuperação de senha');
         $email->setMessage('Esmos desenvolvendo, esse é o teste de email de recuperação de senha de acesso do usuário.');
-        if($email->send())
-        {
-          echo 'E-mail enviado!';
-
-        }else{
+        if ($email->send()) {
+            echo 'E-mail enviado!';
+        } else {
 
             echo $email->printDebugger();
-            
         }
-        
     }
 
     public function cep()
@@ -58,5 +54,12 @@ class Home extends BaseController
         $cep = "59114-250";
 
         return $this->response->setJSON($this->consultaViaCep($cep));
+    }
+
+    public function barcode()
+    {
+        // This will output the barcode as HTML output to display in the browser
+        $generator = new \Picqer\Barcode\BarcodeGeneratorSVG();
+        echo $generator->getBarcode('081231723897', $generator::TYPE_CODE_128);
     }
 }

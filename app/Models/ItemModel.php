@@ -24,6 +24,7 @@ class ItemModel extends Model
     ];
 
     // Dates
+    protected $useTimestamps = true;
     protected $createdField  = 'criado_em';
     protected $updatedField  = 'atualizado_em';
     protected $deletedField  = 'deletado_em';
@@ -57,6 +58,27 @@ class ItemModel extends Model
             'required' => 'O campo Descrição é obrigatório!',
         ],           
     ];
+
+    // Callbacks
+    protected $beforeInsert   = ['removeVirgulaValores'];
+    protected $beforeUpdate   = ['removeVirgulaValores'];
+
+    protected function removeVirgulaValores(array $data){
+
+        if(isset($data['data']['preco_custo'])){
+
+            $data['data']['preco_custo'] = str_replace(",", "", $data['data']['preco_custo']);
+            
+        }
+
+        if(isset($data['data']['preco_venda'])){
+
+            $data['data']['preco_venda'] = str_replace(",", "", $data['data']['preco_venda']);
+            
+        }
+
+        return $data;
+    }
 
 
     /**

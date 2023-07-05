@@ -69,6 +69,8 @@ class Filters extends BaseConfig
                 'home(/*)?',
                 'usuarios(/*)?',
                 'grupos(/*)?',
+                'itens(/*)?',
+                'fornecedores(/*)?',
             ],
         ],
 

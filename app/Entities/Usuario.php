@@ -14,6 +14,8 @@ class Usuario extends Entity
         'deletado_em',
     ];
 
+    
+
     /**
      * Método que verifica se a senha é valida
      *  @param string $password
