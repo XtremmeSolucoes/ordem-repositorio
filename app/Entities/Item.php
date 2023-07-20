@@ -46,4 +46,71 @@ class Item extends Entity
     {
         return ($this->tipo === 'produto' ? $this->estoque: 'Não se aplica!');
     }
+
+    public function recuperaAtributosAlterados() : string
+    {
+        $atributosAlterados = [];
+
+        if($this->hasChanged('nome')){
+
+            $atributosAlterados['nome'] = "O nome foi alterado para $this->nome";
+        }
+
+        if($this->hasChanged('preco_custo')){
+
+            $atributosAlterados['preco_custo'] = "O Preço de custo foi alterado para $this->preco_custo";
+        }
+
+        if($this->hasChanged('preco_venda')){
+
+            $atributosAlterados['preco_venda'] = "O Preço de venda foi alterado para $this->preco_venda";
+        }
+
+        if($this->hasChanged('estoque')){
+
+            $atributosAlterados['estoque'] = "O Preço de venda foi alterado para $this->estoque";
+        }
+
+        if($this->hasChanged('descricao')){
+
+            $atributosAlterados['descricao'] = "A descrição foi alterada para $this->descricao";
+        }
+
+        if($this->hasChanged('descricao')){
+
+            $atributosAlterados['descricao'] = "A descrição foi alterada para $this->descricao";
+        }
+
+        if($this->hasChanged('controla_estoque')){
+
+            if($this->controla_estoque === true){
+
+                $atributosAlterados['controla_estoque'] = "O controle de estoque foi ativado";
+
+            }else {
+
+                $atributosAlterados['controla_estoque'] = "O controle de estoque foi desativado";
+
+            }
+
+            
+        }
+
+        if($this->hasChanged('ativo')){
+
+            if($this->ativo === true){
+
+                $atributosAlterados['ativo'] = "O item foi ativado";
+
+            }else {
+
+                $atributosAlterados['ativo'] = "O item foi desativado";
+
+            }
+
+            
+        }
+
+        return serialize($atributosAlterados);
+    }
 }

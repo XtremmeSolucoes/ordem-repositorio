@@ -28,7 +28,7 @@
 
                 <div class="form-group mt-5 mb-2">
                     <input id="btn-salvar" type="submit" value="Salvar" class="btn btn-danger btn-sm mr-2">
-                    <a href="<?php echo site_url("itens/exibir/$item->id"); ?>" class="btn btn-secondary btn-sm ml-2">Voltar</a>
+                    <a href="<?php echo site_url("itens"); ?>" class="btn btn-secondary btn-sm ml-2">Voltar</a>
                 </div>
 
                 <?php echo form_close(); ?>
@@ -44,28 +44,38 @@
 <script src="<?php echo site_url('recursos/vendor/mask/jquery.mask.min.js') ?>"></script>
 
 <script src="<?php echo site_url('recursos/vendor/mask/app.js') ?>"></script>
-
-<?php if($item->tipo === 'serviço'): ?>
-
-    <script>
-        $(".servico").addClass('d-none');
-    </script>
-
-<?php endif; ?>    
-
-
 <script >
-
 $(document).ready(function(){
 
+    $("[name=tipo]").on("click", function () {
 
+        if($(this).val() === "serviço"){
+
+            $(".servico").hide("slow");
+            $("[name=marca]").prop("disabled", true);
+            $("[name=modelo]").prop("disabled", true);
+            $("[name=estoque]").prop("disabled", true);
+            $("[name=preco_custo]").prop("disabled", true);
+            $("[name=controla_estoque]").prop("disabled", true);
+
+        }else{
+            $(".servico").show("slow");
+            $("[name=marca]").prop("disabled", false);
+            $("[name=modelo]").prop("disabled", false);
+            $("[name=estoque]").prop("disabled", false);
+            $("[name=preco_custo]").prop("disabled", false);
+            $("[name=controla_estoque]").prop("disabled", false);
+        }
+
+
+    });
 
     $("#form").on('submit', function(e){
         e.preventDefault();
 
         $.ajax({
             type: 'POST',
-            url: '<?= site_url('itens/atualizar'); ?>',
+            url: '<?= site_url('itens/cadastrar'); ?>',
             data: new FormData(this),
             dataType: 'json',
             contentType: false,
@@ -84,18 +94,7 @@ $(document).ready(function(){
 
                 if(!response.erro){
 
-                    
-
-                    if(response.info){
-
-                        $("#response").html('<div class="alert alert-info">' + response.info + '</div>');
-                        
-                    }else{
-                        
-                        //tudo deu certinho com a atualização do usuário
-
-                        window.location.href = "<?= site_url("Itens/exibir/$item->id") ?>";
-                    }
+                    window.location.href = "<?= site_url("Itens/exibir/") ?>" + response.id;
 
                 }
 
