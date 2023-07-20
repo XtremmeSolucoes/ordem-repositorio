@@ -4,16 +4,19 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Entities\Item;
+use PhpParser\Node\Stmt\Foreach_;
 
 class Itens extends BaseController
 {
     private $itemModel;
     private $itemHistoricoModel;
+    private $itemImagemModel;
 
     public function __construct()
     {
         $this->itemModel = new \App\Models\ItemModel();
         $this->itemHistoricoModel = new \App\Models\ItemHistoricoModel();
+        $this->itemImagemModel = new \App\Models\ItemImagemModel();
     }
 
     public function index()
@@ -139,7 +142,7 @@ class Itens extends BaseController
                 return $this->response->setJSON($retorno);
             }
         }
-        
+
         if ($this->itemModel->save($item)) {
             $btnCriar = anchor("itens/criar", 'Cadastrar nono Item', ['class' => 'btn btn-danger mt-2']);
 
@@ -154,7 +157,7 @@ class Itens extends BaseController
         $retorno['erros_model'] = $this->itemModel->errors();
         return $this->response->setJSON($retorno);
     }
-    
+
     public function editar(int $id = null)
     {
         $item = $this->buscarItemOu404($id);
@@ -238,6 +241,89 @@ class Itens extends BaseController
         return $this->response->setJSON($retorno);
     }
 
+    public function editarImagem(int $id = null)
+    {
+        $item = $this->buscarItemOu404($id);
+
+        if ($item->tipo === 'serviço') {
+
+            return redirect()->back()->with('info', "Só é possível alterar imagem dos itens do tipo produto!");
+        }
+
+        $item->imagens = $this->itemImagemModel->where('item_id', $item->id)->findAll();
+
+        $data = [
+            'titulo' => 'Gerenciando as imagens do Item &nbsp;' . $item->nome . ' ' . $item->exibeTipo(),
+            'item' => $item,
+
+        ];
+
+        return view('Itens/editar_imagem', $data);
+    }
+
+    public function upload()
+    {
+        if (!$this->request->isAJAX()) {
+            return redirect()->back();
+        }
+        // envio do token do form
+        $retorno['token'] = csrf_hash();
+
+        $validacao = service('validation');
+
+        $regras = [
+            'imagens' => 'uploaded[imagens]|max_size[imagens,1024]|ext_in[imagens,png,jpg,jpeg,webp]',
+        ];
+
+        $mensagens = [   // Errors
+            'imagens' => [
+                'uploaded' => 'Por favor escolha uma imagem ou mais imagens!',
+                'max_size' => 'O tamanho maximo da imagem, permitido é de 1024!',
+                'ext_in' => 'Os formatos da imagens permitidos são, png, jpg, jpeg ou webp!',
+
+            ],
+        ];
+
+        $validacao->setRules($regras, $mensagens);
+
+        if ($validacao->withRequest($this->request)->run() === false) {
+
+            //retorno de erros de validação
+
+            $retorno['erro'] = 'Verifique os erros abaixo e tente novamente';
+            $retorno['erros_model'] = $validacao->getErrors();
+
+            // retorno para o ajax request
+            return $this->response->setJSON($retorno);
+        }
+
+        // recuperar o post da requisição
+
+        $post = $this->request->getPost();
+
+        //validamos a exixtencia do ITEM 
+
+        $item = $this->buscarItemOu404($post['id']);
+
+        $imagens = $this->request->getFiles('imagens');
+
+        foreach ($imagens['imagens'] as $imagem) {
+
+            list($largura, $altura) = getimagesize($imagem->getPathName());
+
+            if ($largura < "400" || $altura < "400") {
+
+                $retorno['erro'] = 'Verifique os erros abaixo e tente novamente';
+                $retorno['erros_model'] = ['dimensao' => 'A imagem não pode ser menor do que 400 X 400 pixels!'];
+
+                // retorno para o ajax request
+                return $this->response->setJSON($retorno);
+            }
+        }
+    }
+
+    /*-----------------------Métodos privados---------------------------------*/
+
 
     /**
      * Método  que recupera o ITEM
@@ -260,7 +346,7 @@ class Itens extends BaseController
      * @return object
      */
 
-    private function defineHistoricoItem(object $item) : object
+    private function defineHistoricoItem(object $item): object
     {
         //Método para recuperar o historico do item
         $atributos = [
@@ -270,23 +356,21 @@ class Itens extends BaseController
         ];
 
         $historico = $this->itemHistoricoModel
-                          ->asArray()
-                          ->select($atributos)
-                          ->where('item_id', $item->id) 
-                          ->orderBy('criado_em', 'DESC')
-                          ->findAll();
-        if($historico != null){
+            ->asArray()
+            ->select($atributos)
+            ->where('item_id', $item->id)
+            ->orderBy('criado_em', 'DESC')
+            ->findAll();
+        if ($historico != null) {
 
             foreach ($historico as $key => $hist) {
-             
+
                 $historico[$key]['atributos_alterados'] = unserialize($hist['atributos_alterados']);
-                
             }
 
             $item->historico = $historico;
+        }
 
-        } 
-        
         return $item;
     }
 
@@ -296,7 +380,7 @@ class Itens extends BaseController
      * @return void
      */
 
-    private function insereHistoricoItem(object $item, string $acao) : void 
+    private function insereHistoricoItem(object $item, string $acao): void
     {
         $historico = [
             'usuario_id' => usuario_logado()->id,
