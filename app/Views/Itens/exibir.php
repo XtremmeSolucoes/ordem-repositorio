@@ -89,7 +89,10 @@
 
                             <div id="collapse-<?php echo $key; ?>" class="collapse <?php echo($key === 0 ? 'show' : ''); ?>" aria-labelledby="heading-<?php echo $key; ?>" data-parent="#accordion">
                                 <div class="card-body">
-                                    <p>Em <?php echo date('d/m/Y H:i', strtotime($historico['criado_em'])); ?></p>
+                                    <p>Em <?php echo date('d/m/Y H:i', strtotime($historico['criado_em'])); ?>
+                                    <br>
+                                    O item sofreu uma <span class="text-white"><?php echo esc($historico['acao']); ?></span>, feita pelo usuário <span class="text-white"><?php echo esc($historico['usuario']); ?></span> 
+                                    </p>
 
                                     <?php foreach ($historico['atributos_alterados'] as $evento) : ?>
                                         <p><?php echo $evento; ?></p>

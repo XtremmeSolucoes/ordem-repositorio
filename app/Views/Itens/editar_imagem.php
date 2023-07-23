@@ -16,40 +16,76 @@
         <div class="block">
             <div class="block-body">
 
-                <!-- Exibir as mensagens do Backend -->
-                <div id="response">
+                <?php if (count($item->imagens) >= 5) : ?>
+                    <p class="contributions text-warning mt-0">Esse Produto já possui as <?php echo count($item->imagens); ?> Imagem permitidas!<br>
+                        Para inserir novas imagens, é preciso remover algumas existentes!
+                    </p>
+                <?php else : ?>
+
+                    <!-- Exibir as mensagens do Backend -->
+                    <div id="response">
 
 
-                </div>
+                    </div>
 
-                <?php echo form_open_multipart('/', ['id' => 'form'], ['id' => "$item->id"]) ?>
+                    <?php echo form_open_multipart('/', ['id' => 'form'], ['id' => "$item->id"]) ?>
 
-                <div class="form-group">
-                    <label class="form-control-label">Escolha uma ou mais Imagens</label>
-                    <input type="file" name="imagens[]" class="form-control" multiple>
-                </div>
+                    <div class="form-group">
+                        <label class="form-control-label">Escolha uma ou mais Imagens</label>
+                        <input type="file" name="imagens[]" class="form-control" multiple>
+                    </div>
 
-                <div class="form-group mt-5 mb-2">
-                    <input id="btn-salvar" type="submit" value="Salvar" class="btn btn-danger btn-sm mr-2">
-                    <a href="<?php echo site_url("itens/exibir/$item->id"); ?>" class="btn btn-secondary btn-sm ml-2">Voltar</a>
-                </div>
+                    <div class="form-group mt-5 mb-2">
+                        <input id="btn-salvar" type="submit" value="Salvar" class="btn btn-danger btn-sm mr-2">
+                        <a href="<?php echo site_url("itens/exibir/$item->id"); ?>" class="btn btn-secondary btn-sm ml-2">Voltar</a>
+                    </div>
 
-                <?php echo form_close(); ?>
+                    <?php echo form_close(); ?>
+
+                <?php endif; ?>
+
+
 
             </div><!-- ./ block-body -->
         </div> <!-- ./ block -->
     </div>
     <div class="col-lg-7">
         <div class="user-block block">
-            <?php if (empty($item->imagens)): ?>
+            <?php if (empty($item->imagens)) : ?>
 
                 <p class="contributions text-warning mt-0">Esse item ainda não possui nenhuma Imagem!</p>
 
-            <?php else: ?>
+            <?php else : ?>
 
-                IMAGEMS
-                
-            <?php endif; ?>    
+                <ul class="list-inline">
+                    <?php foreach ($item->imagens as $imagem) : ?>
+
+                        <li class="list-inline-item">
+                            <div class="card" style="width: 10rem;">
+                                <img class="card-img-top" src="<?php echo site_url("itens/imagem/$imagem->imagem"); ?>" alt="<?php echo esc($item->nome); ?>">
+                            </div>
+                            <div class="card-body text-center">
+
+                                <?php
+                                $atributos = [
+                                    'onSubmit' => "return confirm('Tem certeza da exclusão da Imagem?');",
+
+                                ];
+                                ?>
+
+                                <?php echo form_open("itens/removeimagem/$imagem->imagem", $atributos) ?>
+
+                                <button type="submit" class="btn btn-sm btn-danger">Excluir</button>
+
+                                <?php echo form_close(); ?>
+
+                            </div>
+                        </li>
+
+                    <?php endforeach; ?>
+                </ul>
+
+            <?php endif; ?>
         </div>
     </div>
 </div>

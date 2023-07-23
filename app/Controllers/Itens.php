@@ -75,6 +75,18 @@ class Itens extends BaseController
 
         $this->defineHistoricoItem($item);
 
+        if($item->tipo === "produto"){
+
+            $itemImagem = $this->itemImagemModel->select('imagem')->where('item_id', $item->id)->first();
+
+            if($itemImagem !== null){
+
+                $item->imagem = $itemImagem->imagem;
+
+            }
+
+        }
+
         $data = [
             'titulo' => 'Detalhes do &nbsp;' . $item->exibeTipo() . ':&nbsp;&nbsp;' . $item->nome,
             'item' => $item,
@@ -305,7 +317,23 @@ class Itens extends BaseController
 
         $item = $this->buscarItemOu404($post['id']);
 
+        //Limitando a cantidade de imagens por iten
+        $resultadoTotalImagens = $this->defineQuantidadeImagens($item->id);
+
+        if($resultadoTotalImagens['totalImagens'] > 5){
+
+            $retorno['erro'] = 'Verifique os erros abaixo e tente novamente';
+            $retorno['erros_model'] = ['total_imagens' => "É permitido no máximo 5 imagens por produto. Esse produto já possui ". $resultadoTotalImagens['existentes']. ' Imagens!'];
+
+            // retorno para o ajax request
+            return $this->response->setJSON($retorno);
+
+        }
+
+
         $imagens = $this->request->getFiles('imagens');
+
+        //FOREACH PARA VALIDAR LARGURA E ALTURA DA IMAGEM
 
         foreach ($imagens['imagens'] as $imagem) {
 
@@ -320,7 +348,88 @@ class Itens extends BaseController
                 return $this->response->setJSON($retorno);
             }
         }
+
+        //Receberá as imagens para o insertBatch
+
+        $arrayImagens = [];
+        foreach ($imagens['imagens'] as $imagem) {
+
+            $caminhoImagem = $imagem->store('itens');
+            $caminhoImagem = WRITEPATH . "uploads/$caminhoImagem";
+
+            $this->manipulaImagem($caminhoImagem, $item->id);
+
+            array_push($arrayImagens, [
+                'item_id' => $item->id,
+                'imagem'  => $imagem->getName(),
+            ]);
+            
+        } 
+        
+        $this->itemImagemModel->insertBatch($arrayImagens);
+        session()->setFlashdata('sucesso', 'Imagens salvas com sucesso!');
+        return $this->response->setJSON($retorno);
+
     }
+
+    public function imagem(string $imagem = null)
+    {
+        if($imagem != null){
+
+            $this->exibeArquivo('itens', $imagem);
+
+        }
+    }
+
+    public function removeImagem(string $imagem = null)
+    {
+        if($this->request->getMethod() === 'post')
+        {
+            $objetoImagem = $this->buscarImagemOu404($imagem);
+
+            $this->itemImagemModel->delete($objetoImagem->id);
+
+            $caminhoImagem = WRITEPATH. "uploads/itens/$imagem";
+
+            if(is_file($caminhoImagem))
+            {
+                unlink($caminhoImagem);
+            }
+
+            return redirect()->back()->with("sucesso", "Imagem removida com sucesso!");
+        }
+
+        return redirect()->back();
+    }
+
+    public function excluir(int $id = null)
+    {
+        $item = $this->buscarItemOu404($id);
+
+        if($this->request->getMethod() === 'post')
+        {
+
+            $this->itemModel->delete($item->id);
+
+            if($item->tipo === 'produto'){
+
+                $this->removeTodasImagensDoItem($item->id);
+
+            }
+
+            return redirect()->to(site_url("itens"))->with('sucesso', "Item $item->nome excluído com sucesso!");
+        }
+
+        $data = [
+            'titulo' => 'Excluindo o Item &nbsp;' . $item->nome . ' ' . $item->exibeTipo(),
+            'item' => $item,
+
+        ];
+
+
+        return view('itens/excluir', $data);
+    }
+
 
     /*-----------------------Métodos privados---------------------------------*/
 
@@ -341,6 +450,21 @@ class Itens extends BaseController
     }
 
     /**
+     * Método  que recupera a IMAGEM
+     * 
+     * @param string $imagem
+     * @return Exceptions|object
+     */
+
+    private function buscarImagemOu404(string $imagem = null)
+     {
+         if (!$imagem || !$objetoImagem = $this->itemImagemModel->where('imagem', $imagem)->first()) {
+             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Não encontramos a imagem $imagem");
+         }
+         return $objetoImagem;
+     }
+
+    /**
      * Método que define o histórico de alterações do item
      * @param object $item
      * @return object
@@ -349,18 +473,10 @@ class Itens extends BaseController
     private function defineHistoricoItem(object $item): object
     {
         //Método para recuperar o historico do item
-        $atributos = [
-            'atributos_alterados',
-            'criado_em',
-            'acao',
-        ];
+        
 
-        $historico = $this->itemHistoricoModel
-            ->asArray()
-            ->select($atributos)
-            ->where('item_id', $item->id)
-            ->orderBy('criado_em', 'DESC')
-            ->findAll();
+        $historico = $this->itemHistoricoModel->recuperaHistoricoItem($item->id);
+            
         if ($historico != null) {
 
             foreach ($historico as $key => $hist) {
@@ -391,4 +507,77 @@ class Itens extends BaseController
 
         $this->itemHistoricoModel->insert($historico);
     }
+
+    private function manipulaImagem(string $caminhoImagem, int $item_id)
+    {
+        service('image')
+           ->withFile($caminhoImagem)
+           ->fit(400, 400, 'center')
+           ->save($caminhoImagem);
+
+        $anoAtual = date('Y');   
+        
+        //Adcionar Marca D'água de texto
+        \Config\Services::image('imagick')
+           ->withFile($caminhoImagem)
+           ->text("Ordem $anoAtual - Produto-ID $item_id", [
+                'color'      => '#fff',
+                'opacity'    => 0.3,
+                'withShadow' => false,
+                'hAlign'     => 'center',
+                'vAlign'     => 'bottom',
+                'fontSize'   => 15
+           ])
+           ->save($caminhoImagem);
+    }
+
+    /**
+     * Método que define numero de imagem por produto
+     * @param array $item_id
+     * @return int
+     */
+
+    private function defineQuantidadeImagens(int $item_id) : array
+    {
+        $existentes = $this->itemImagemModel->where('item_id', $item_id)->countAllResults();
+        $quantidadeImagensPost = count(array_filter($_FILES['imagens']['name']));
+
+        $retorno = [
+            'existentes' => $existentes,
+            'totalImagens' => $existentes + $quantidadeImagensPost,
+        ];
+        return $retorno;
+    }
+
+    /**
+     * Método que deleta as imagem de item deletado
+     * @param int $item_id
+     * @return void
+     */
+
+    private function removeTodasImagensDoItem(int $item_id) : void 
+    {
+        $itemImagens = $this->itemImagemModel->where('item_id', $item_id)->findAll();
+
+        if(empty($itemImagens) === false){
+
+            $this->itemImagemModel->where('item_id', $item_id)->delete();
+
+            foreach ($itemImagens as $imagem) {
+
+                $caminhoImagem = WRITEPATH . "uploads/itens/$imagem->imagem";
+
+                if(is_file($caminhoImagem)){
+
+                    unlink($caminhoImagem);
+
+                }
+                
+            }
+
+        }
+
+    }
+
+
 }
