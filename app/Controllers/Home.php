@@ -62,4 +62,11 @@ class Home extends BaseController
         $generator = new \Picqer\Barcode\BarcodeGeneratorSVG();
         echo $generator->getBarcode('081231723897', $generator::TYPE_CODE_128);
     }
+
+    public function checkEmail()
+    {
+        $email = 'agrego@hotmail.com';
+
+        return $this->response->setJSON($this->consultaEmail($email));
+    }
 }

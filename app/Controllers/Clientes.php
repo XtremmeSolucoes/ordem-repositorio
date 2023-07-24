@@ -122,7 +122,7 @@ class Clientes extends BaseController
         $cliente->fill($post);
 
         
-        if ($cliente->hasChanged() == false) {
+        if ($cliente->hasChanged() === false) {
             $retorno['info'] = 'Não há dados para atualizar!';
             return $this->response->setJSON($retorno);
         }
@@ -133,9 +133,8 @@ class Clientes extends BaseController
 
                 $this->usuarioModel->atualizaEmailDoCliente($cliente->usuario_id, $cliente->email);
 
-                /**
-                 * @todo Enviar e-mail para o cliente informando da alteração do e-mail de acesso
-                 */
+                
+                $this->enviaEmailAlteracaoEmailAcesso($cliente);
 
                  session()->setFlashdata('sucesso', 'Dados salvos com sucesso!<br><br> IMPORTANTE: Um email de notificação foi enviado para o cliente, informando a alteração no email de acesso ao sistema!');
                  return $this->response->setJSON($retorno);
@@ -155,7 +154,7 @@ class Clientes extends BaseController
         return $this->response->setJSON($retorno);
     }
 
-    
+
     public function consultaCep()
     {
         if (!$this->request->isAJAX()) {
@@ -184,4 +183,29 @@ class Clientes extends BaseController
         }
         return $cliente;
     }
+
+
+    /**
+     * Método que envia o email para o cliente informando a alteração do email de acesso
+     * @param object $cliente
+     * @return void
+     */
+
+     private function enviaEmailAlteracaoEmailAcesso(object $cliente): void
+     {
+         $email = service('email');
+ 
+         $email->setFrom('no-reply@ordem.com', 'Ordem de Serviço');
+         $email->setTo($cliente->email);
+         $email->setSubject('Redefinição de E-mail de acesso');
+ 
+         $data = [
+             'cliente' => $cliente,
+         ];
+ 
+         $mensagem = view('Clientes/email_acesso_alterado', $data);
+         $email->setMessage($mensagem);
+ 
+         $email->send();
+     }
 }
