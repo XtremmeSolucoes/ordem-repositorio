@@ -139,4 +139,20 @@ class UsuarioModel extends Model
         //Tudo Ok, válidado com sucesso
         return $usuario;
     }
+
+    /**
+     * MÉTODO QUE ATUALIZA O EMAIL DO USUÁRIO DE ACORDO COM O EMAIL DO CLIENTE 
+     * @param integer $usuario_id
+     * @param string $email
+     * @return void
+     */
+    
+    public function atualizaEmailDoCliente(int $usuario_id, string $email)
+    {
+        return $this->protect(false)
+                    ->where('id', $usuario_id)
+                    ->set('email', $email)
+                    ->update();
+
+    }
 }
