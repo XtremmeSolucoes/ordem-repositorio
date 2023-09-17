@@ -15,6 +15,7 @@
     <div class="form-group col-md-4">
         <label class="form-control-label">E-mail (para acesso ao sistema)</label>
         <input type="email" name="email" placeholder="Insira o email" class="form-control" value="<?php echo esc($cliente->email); ?>">
+        <div id="email"></div>
     </div>
     <div class="form-group col-md-4">
         <label class="form-control-label">CEP</label>

@@ -53,6 +53,7 @@
 
         //$("#element").LoadingOverlay("show");
 
+        <?php echo $this->include('clientes/_checkmail'); ?>
         <?php echo $this->include('clientes/_viacep'); ?>
 
         $("#form").on('submit', function(e) {

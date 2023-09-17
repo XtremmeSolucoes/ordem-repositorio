@@ -65,7 +65,7 @@ class Home extends BaseController
 
     public function checkEmail()
     {
-        $email = 'agrego@hotmail.com';
+        $email = 'c4e130ac9f@mymaily.lol';
 
         return $this->response->setJSON($this->consultaEmail($email));
     }

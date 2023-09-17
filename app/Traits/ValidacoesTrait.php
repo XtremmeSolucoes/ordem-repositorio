@@ -56,12 +56,12 @@ trait ValidacoesTrait
     }
 
 
-    public function consultaEmail(string $email, bool $bypass = false) : array
+    public function checkEmail(string $email, bool $bypass = false)
     {
 
         $retorno = [];
 
-        if($bypass === true){
+        if ($bypass === true) {
             return $retorno;
         }
 
@@ -70,7 +70,6 @@ trait ValidacoesTrait
         curl_setopt_array($curl, array(
             CURLOPT_URL => "https://mailcheck.p.rapidapi.com/?domain={$email}",
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,
             CURLOPT_TIMEOUT => 30,
@@ -78,7 +77,7 @@ trait ValidacoesTrait
             CURLOPT_CUSTOMREQUEST => "GET",
             CURLOPT_HTTPHEADER => array(
                 "x-rapidapi-host: mailcheck.p.rapidapi.com",
-                "x-rapidapi-key: ".getenv('CHAVE_CHECK_MAIL_ORG_API'),
+                "X-RapidAPI-Key: 2ecf9e438bmsh8fb08cf7e4f626bp11fdb2jsn97089f183188"
             ),
         ));
 
@@ -92,19 +91,20 @@ trait ValidacoesTrait
             $retorno['erro'] = "cURL Error #:" . $erro;
 
             return $retorno;
-            
-        } 
+        }
 
         $consulta = json_decode($resposta);
+        
+
+       
 
         session()->set('blockEmail', esc($consulta->block)); //será usado no controller
 
-        if($consulta->block){
+        if ($consulta->block) {
 
-            $retorno['erro'] = '<span class="text-danger">Informe um E-mail com domínio válido!</span>';
+            $retorno['erro'] = '<span class="text-danger">O domínio '.$consulta->domain.' não é válido!</span>';
 
             return $retorno;
-
         }
 
         return $retorno;

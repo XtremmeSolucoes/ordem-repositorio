@@ -36,6 +36,7 @@ protected $validationRules = [
     'cpf'        => 'required|validaCPF|exact_length[14]|is_unique[clientes.cpf,id,{id}]',
     'telefone'    => 'required|exact_length[15]|is_unique[clientes.telefone,id,{id}]',
     'email'       => 'required|valid_email|max_length[60]|is_unique[clientes.email,id,{id}]',
+    'email'       => 'is_unique[usuarios.email,id,{id}]',
     'cep'         => 'required|exact_length[9]',
     'endereco'    => 'required|min_length[10]|max_length[120]',
     'numero'      => 'max_length[20]',

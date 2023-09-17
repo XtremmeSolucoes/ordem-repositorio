@@ -22,13 +22,13 @@
 
                 </div>
 
-                <?php echo form_open('/', ['id' => 'form'], ['id' => "$fornecedor->id"]) ?>
+                <?php echo form_open('/', ['id' => 'form'], ['id' => "$cliente->id"]) ?>
 
-                <?php echo $this->include('Fornecedores/_form'); ?>
+                <?php echo $this->include('Clientes/_form'); ?>
 
                 <div class="form-group mt-5 mb-2">
                     <input id="btn-salvar" type="submit" value="Salvar" class="btn btn-danger btn-sm mr-2">
-                    <a href="<?php echo site_url("fornecedore"); ?>" class="btn btn-secondary btn-sm ml-2">Voltar</a>
+                    <a href="<?php echo site_url("clientes"); ?>" class="btn btn-secondary btn-sm ml-2">Voltar</a>
                 </div>
 
                 <?php echo form_close(); ?>
@@ -53,14 +53,15 @@
 
         //$("#element").LoadingOverlay("show");
 
-        <?php echo $this->include('Fornecedores/_viacep'); ?>
+        <?php echo $this->include('clientes/_checkmail'); ?>
+        <?php echo $this->include('clientes/_viacep'); ?>
 
         $("#form").on('submit', function(e) {
             e.preventDefault();
 
             $.ajax({
                 type: 'POST',
-                url: '<?= site_url('fornecedores/cadastrar'); ?>',
+                url: '<?= site_url('clientes/cadastrar'); ?>',
                 data: new FormData(this),
                 dataType: 'json',
                 contentType: false,
@@ -89,7 +90,7 @@
 
                             //tudo deu certinho com a atualização do usuário
 
-                            window.location.href = "<?= site_url("fornecedores/exibir/") ?>" + response.id;
+                            window.location.href = "<?= site_url("clientes/exibir/") ?>" + response.id;
                         }
 
                     }
