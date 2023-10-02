@@ -16,15 +16,13 @@
 <div class="row">
    <div class="col-lg-12">
       <div class="block">
-         <a href="<?php echo site_url('usuarios/criar'); ?>" class="btn btn-danger mb-5">Criar novo usuário</a>
+         <a href="<?php echo site_url('contas/criar'); ?>" class="btn btn-danger mb-5">Criar nova conta</a>
          <div class="table-responsive">
             <table id="ajaxTable" class="table table-striped table-sm" style="width: 100%;">
                <thead>
                   <tr>
-                     <th>Imagem</th>
-                     <th>Nome</th>
-                     <th>E-mail</th>
-                     <th>Grupos de Acesso</th>
+                     <th>Fornecedor</th>
+                     <th>Valor da Conta</th>
                      <th>Situação</th>
                   </tr>
                </thead>
@@ -79,26 +77,18 @@
 
          "oLanguage": DATATABLE_PTBR,
 
-         ajax: '<?php echo site_url('usuarios/recuperausuarios'); ?>',
+         ajax: '<?php echo site_url('contas/recuperacontas'); ?>',
          columns: [{
-               data: "imagem"
+               data: 'razao'
             },
             {
-               data: "nome"
-            },
+               data: 'valor_conta'
+            },            
             {
-               data: "email"
-            },
-            {
-               data: "grupos[, ]",
-               "render":function(data, type, row){
-                 return data.split(",").join("</br>"); 
-               }
-            },
-            {
-               data: "ativo"
+               data: 'situacao'
             },
          ],
+         "order": [],
          "deferRender": true,
          "processing": true,
          "language": {

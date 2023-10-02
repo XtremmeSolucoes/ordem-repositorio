@@ -51,4 +51,31 @@ class GrupoUsuarioModel extends Model
                    ->first();  
     }
 
+    /**
+     * Método que recupera os grupos de dos usuários.
+     * Utilizado no controller de Usuarios
+     * 
+     * @param integer $usuario_id
+     * @param integer $quantidade_paginacao
+     * @return array|null
+     */
+
+     public function recuperaGrupos()
+     {
+
+        $atributos = [
+            'grupos_usuarios.usuario_id',
+            'grupos.id AS grupo_id',
+            'grupos.nome',
+        ];
+
+        return $this->select($atributos)
+                    ->asArray()
+                    ->join('grupos', 'grupos.id = grupos_usuarios.grupo_id')
+                    ->join('usuarios', 'usuarios.id = grupos_usuarios.usuario_id')
+                    ->where('grupos.deletado_em', null)
+                    ->findAll();
+                
+    }
+
 }

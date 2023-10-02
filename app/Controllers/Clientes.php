@@ -256,6 +256,26 @@ class Clientes extends BaseController
         return $this->response->setJSON($this->checkEmail($email));
     }
 
+    public function excluir(int $id = null)
+    {
+        $cliente = $this->buscarClienteOu404($id);
+
+        if($this->request->getMethod() === 'post')
+        {
+
+            $this->clienteModel->delete($id);
+
+            return redirect()->to(site_url("clientes"))->with('sucesso', "Cliente $cliente->nome excluído com sucesso!");
+        }
+
+        $data = [
+            'titulo' => "Excluindo o Cliente " . esc($cliente->nome),
+            'cliente' => $cliente,
+        ];
+
+        return view('Clientes/excluir', $data);
+    }
+
 
     /*-------------------------------------Métodos privados------------------------------*/
 

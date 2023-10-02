@@ -17,15 +17,15 @@
             <div class="block-body">
 
 
-                <?php echo form_open("clientes/excluir/$cliente->id") ?>
+                <?php echo form_open("contas/excluir/$conta->id") ?>
 
                 <div class="alert alert-warning" role="alert">
-                    Tem certeza da que quer excluir o fornecedor: <b><?php echo $cliente->nome ?></b>?
+                    Tem certeza da que quer excluir a conta do formecedor: <b><?php echo $conta->razao ?></b>?
                 </div>
 
                 <div class="form-group mt-5 mb-2">
                     <input id="btn-salvar" type="submit" value="Sim, pode excluir" class="btn btn-danger btn-sm mr-2">
-                    <a href="<?php echo site_url("clientes/exibir/$cliente->id"); ?>" class="btn btn-secondary btn-sm ml-2">Cancelar</a>
+                    <a href="<?php echo site_url("contas/exibir/$conta->id"); ?>" class="btn btn-secondary btn-sm ml-2">Cancelar</a>
                 </div>
 
                 <?php echo form_close(); ?>

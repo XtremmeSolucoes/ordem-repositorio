@@ -43,8 +43,26 @@ class Usuarios extends BaseController
         ];
 
         $usuarios = $this->usuarioModel->select($atributos)
-            ->orderBy('id', 'DESC')
-            ->findAll();
+                                       ->asArray()
+                                       ->withDeleted(true)
+                                       ->orderBy('id', 'DESC')
+                                       ->findAll();
+
+
+        $grupoUsuarios = $this->grupoUsuarioModel->recuperaGrupos(); 
+        
+        foreach ($usuarios as $key => $usuario) {
+
+            foreach ($grupoUsuarios as $grupo) {
+               
+                if ($usuario['id'] === $grupo['usuario_id']) {
+                    
+                    $usuarios[$key]['grupos'][] = $grupo['nome'];
+
+                }
+
+            }
+        }
 
         $data = [];
 
@@ -52,14 +70,14 @@ class Usuarios extends BaseController
 
             //Definimos o caminho da imagem do usuário
 
-            if($usuario->imagem != null){
+            if($usuario['imagem'] != null){
 
                 //tem imagem
 
                 $imagem = [
-                    'src' => site_url("usuarios/imagem/$usuario->imagem"),
+                    'src' => site_url("usuarios/imagem/".$usuario['imagem']),
                     'class' => 'rounded-circle img-fluid',
-                    'alt' => esc($usuario->nome),
+                    'alt' => esc($usuario['nome']),
                     'width' => '50',
                 ];
             }else {
@@ -74,11 +92,19 @@ class Usuarios extends BaseController
                 ];
             }
 
+            if(isset($usuario['grupos']) === false){
+
+                $usuario['grupos'] = ['<span class="text-warning">Sem grupos de acesso</span>'];
+
+            }
+
             $data[] = [
-                'imagem' => $usuario->imagem = img($imagem),
-                'nome' => anchor("usuarios/exibir/$usuario->id", esc($usuario->nome), 'title="Exibir dados do usuário ' . esc($usuario->nome) . '"'),
-                'email' => esc($usuario->email),
-                'ativo' => ($usuario->ativo == true ? '<i class="fa fa-unlock text-success"></i>&nbsp;Ativo' : '<i class="fa fa-lock text-danger"></i>&nbsp;Inativo'),
+                'imagem' => $usuario['imagem'] = img($imagem),
+                'nome' => anchor("usuarios/exibir/".$usuario['id'], esc($usuario['nome']), 'title="Exibir dados do usuário ' . esc($usuario['nome']) . '"'),
+                'email' => esc($usuario['email']),
+                'grupos' => $usuario['grupos'],
+                'ativo' => ($usuario['ativo'] == true ? '<i class="fa fa-unlock text-success"></i>&nbsp;Ativo' : '<i class="fa fa-lock text-danger"></i>&nbsp;Inativo'),
+                
             ];
         }
 
