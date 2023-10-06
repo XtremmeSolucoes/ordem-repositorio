@@ -9,11 +9,13 @@ class ContasPagar extends BaseController
 {
     private $contaPagarModel;
     private $fornecedorModel;
+    private $eventoModel;
 
     public function __construct()
     {
         $this->contaPagarModel = new \App\Models\ContaPagarModel();
         $this->fornecedorModel = new \App\Models\FornecedorModel();
+        $this->eventoModel = new \App\Models\EventoModel();
     }
 
     public function index()
@@ -61,7 +63,7 @@ class ContasPagar extends BaseController
         $data = [
             'titulo' => "Criando nova Conta",
             'conta'  => $conta,
-            
+
         ];
 
         return view('ContasPagar/criar', $data);
@@ -80,13 +82,18 @@ class ContasPagar extends BaseController
 
         $post = $this->request->getPost();
 
-        
+
 
         $conta = new ContaPagar($post);
-       
+
         $conta->valor_conta = str_replace(",", "", $conta->valor_conta);
 
         if ($this->contaPagarModel->save($conta)) {
+
+            if ($conta->situacao == 0) {
+
+                $this->cadastraEventoDaConta($conta);
+            }
 
             session()->setFlashdata('sucesso', 'Dados salvos com sucesso!');
             $retorno['id'] = $this->contaPagarModel->getInsertID();
@@ -123,15 +130,15 @@ class ContasPagar extends BaseController
         $termo = $this->request->getGet('termo');
 
         $fornecedores = $this->fornecedorModel->select($atributos)
-                                              ->asArray()
-                                              ->like('razao', $termo)
-                                              ->orLike('cnpj',$termo)
-                                              ->where('ativo', true)
-                                              ->orderBy('razao', 'ASC')
-                                              ->findAll();
-        
-        return $this->response->setJSON($fornecedores);                                       
-    } 
+            ->asArray()
+            ->like('razao', $termo)
+            ->orLike('cnpj', $termo)
+            ->where('ativo', true)
+            ->orderBy('razao', 'ASC')
+            ->findAll();
+
+        return $this->response->setJSON($fornecedores);
+    }
 
     public function exibir(int $id = null)
     {
@@ -180,8 +187,17 @@ class ContasPagar extends BaseController
         }
 
         $conta->valor_conta = str_replace(",", "", $conta->valor_conta);
+    
 
         if ($this->contaPagarModel->save($conta)) {
+
+            if ($conta->hasChanged('data_vencimento') && $conta->situacao == 0) {
+
+                $dias = $conta->defineDataVencimentoEvento();
+                
+                $this->eventoModel->atualizaEvento('conta_id', $conta->id, $dias);
+                
+            }
 
             session()->setFlashdata('sucesso', 'Dados salvos com sucesso!');
             return $this->response->setJSON($retorno);
@@ -200,8 +216,7 @@ class ContasPagar extends BaseController
     {
         $conta = $this->contaPagarModel->buscaContaOu404($id);
 
-        if($this->request->getMethod() === 'post')
-        {
+        if ($this->request->getMethod() === 'post') {
 
             $this->contaPagarModel->delete($id);
 
@@ -214,5 +229,26 @@ class ContasPagar extends BaseController
         ];
 
         return view('ContasPagar/excluir', $data);
+    }
+
+    //-----------------------MÉTODOS PRIVADOS -----------------------------------------//
+
+    private function cadastraEventoDaConta(object $conta) 
+    {
+        $fornecedor = $this->fornecedorModel->select('razao, cnpj')->find($conta->fornecedor_id);
+
+                $razao = esc($fornecedor->razao);
+                $cnpj = esc($fornecedor->cnpj);
+                $valorConta = 'R$ ' . esc(number_format($conta->valor_conta, 2));
+
+                $tituloEvento = "Conta do Fornecedor $razao - CNPJ: $cnpj | Valor: $valorConta";
+
+                $dias = $conta->defineDataVencimentoEvento();
+
+                //RECEBE O ID DA CONTA RECÉM CRIADA
+                $contaId = $this->contaPagarModel->getInsertID();
+
+                //CADATRAR O EVENTO ATRELADO A CONTA DO FORNECEDOR
+                $this->eventoModel->cadastraEvento('conta_id', $tituloEvento, $contaId, $dias);
     }
 }

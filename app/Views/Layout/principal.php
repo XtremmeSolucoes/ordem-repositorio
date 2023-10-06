@@ -6,9 +6,9 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Ordem de Serviço | <?php
 
-use App\Entities\Usuario;
+                            use App\Entities\Usuario;
 
- echo $this->renderSection('titulo');  ?> </title>
+                            echo $this->renderSection('titulo');  ?> </title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="all,follow">
@@ -82,30 +82,30 @@ use App\Entities\Usuario;
 
           <?php else : ?>
 
-            <img src="<?php echo site_url("usuarios/imagem/". usuario_logado()->imagem); ?>" alt="<?php echo esc(usuario_logado()->nome); ?>" class="img-fluid rounded-circle">
+            <img src="<?php echo site_url("usuarios/imagem/" . usuario_logado()->imagem); ?>" alt="<?php echo esc(usuario_logado()->nome); ?>" class="img-fluid rounded-circle">
 
 
           <?php endif; ?>
         </div>
         <div class="title">
           <h1 class="h5"><?php echo esc(usuario_logado()->nome); ?>
-        </h1>
-        <?php if(usuario_logado()->is_admin): ?>
-          <p>Administrador</p>
-        <?php endif; ?>
-        <?php if(usuario_logado()->is_cliente): ?>
-          <p>Cliente</p>
-        <?php endif; ?>  
-        <?php if(usuario_logado()->is_gerente): ?>
-          <p>Gerente</p>
-        <?php endif; ?>  
-        <?php if(usuario_logado()->is_entregador): ?>
-          <p>Entregador</p>
-        <?php endif; ?>  
-        <?php if(usuario_logado()->is_motorista): ?>
-          <p>Motorista</p>
-        <?php endif; ?>  
-          
+          </h1>
+          <?php if (usuario_logado()->is_admin) : ?>
+            <p>Administrador</p>
+          <?php endif; ?>
+          <?php if (usuario_logado()->is_cliente) : ?>
+            <p>Cliente</p>
+          <?php endif; ?>
+          <?php if (usuario_logado() === "gerente") : ?>
+            <p>Gerente</p>
+          <?php endif; ?>
+          <?php if (usuario_logado()->is_entregador) : ?>
+            <p>Entregador</p>
+          <?php endif; ?>
+          <?php if (usuario_logado()->is_motorista) : ?>
+            <p>Motorista</p>
+          <?php endif; ?>
+
         </div>
       </div>
       <!-- Sidebar Navidation Menus--><span class="heading">Main</span>
@@ -115,7 +115,7 @@ use App\Entities\Usuario;
         <li class="<?php echo (url_is('clientes*') ? 'active' : '') ?>"><a href="<?php echo site_url('clientes'); ?>"> <i class="icon-user"></i>Clientes </a></li>
         <li class="<?php echo (url_is('fornecedores*') ? 'active' : '') ?>"><a href="<?php echo site_url('fornecedores'); ?>"> <i class="icon-user"></i>Fornecedores </a></li>
         <li class="<?php echo (url_is('contas*') ? 'active' : '') ?>"><a href="<?php echo site_url('contas'); ?>"> <i class="icon-user"></i>Contas a Pagar </a></li>
-
+        <li class="<?php echo (url_is('eventos*') ? 'active' : '') ?>"><a href="<?php echo site_url('eventos'); ?>"> <i class="icon-chart"></i>Eventos </a></li>
         <li class="<?php echo (url_is('usuarios*') ? 'active' : '') ?>"><a href="<?php echo site_url('usuarios'); ?>"> <i class="icon-user"></i>Usuários </a></li>
         <li class="<?php echo (url_is('grupos*') ? 'active' : '') ?>"><a href="<?php echo site_url('grupos'); ?>"> <i class="icon-settings-1"></i>Grupos & Permissões </a></li>
         <li><a href="charts.html"> <i class="fa fa-bar-chart"></i>Charts </a></li>
@@ -175,6 +175,16 @@ use App\Entities\Usuario;
 
   <!--Espaço reservado para renderizar os scripts de cada view que estende esse layout-->
   <?php echo $this->renderSection('scripts'); ?>
+
+  <!--Esses scripts só seram usados no full calendar  -->
+
+  <?php if (url_is('eventos*')) : ?>
+
+    <script src="<?php echo site_url('recursos/vendor/fullcalendar/fullcalendar.min.js'); ?>"></script>
+    <script src="<?php echo site_url('recursos/vendor/fullcalendar/toastr.min.js'); ?>"></script>
+    <script src="<?php echo site_url('recursos/vendor/fullcalendar/moment.min.js'); ?>"></script>
+
+  <?php endif; ?>
 
   <script>
     $(function() {

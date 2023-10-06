@@ -15,35 +15,33 @@ class CriaTabelaEventos extends Migration
                 'unsigned'       => true,
                 'auto_increment' => true,
             ],
-            'fornecedor_id' => [
+            'conta_id' => [
                 'type'           => 'INT',
                 'constraint'     => 5,
                 'unsigned'       => true,
+                'null'       => true,
             ],
-            'valor_conta' => [
-                'type'       => 'DECIMAL',
-                'constraint' => '10,2',
+            'title' => [
+                'type'       => 'VARCHAR',
+                'constraint' => '200',
             ],
-            'data_vencimento' => [
-                'type' => 'DATE',
+            'start' => [
+                'type' => 'DATETIME',
             ],
-            'situacao' => [
-                'type' => 'BOOLEAN',
+            'end' => [
+                'type' => 'DATETIME',
             ],
-            'descricao' => [
-                'type' => 'TEXT',
-            ],
-            'criado_em' => [
+            'created_at' => [
                 'type' => 'DATETIME',
                 'null' => true,
                 'default' => null,
             ],
-            'atualizado_em' => [
+            'updated_at' => [
                 'type' => 'DATETIME',
                 'null' => true,
                 'default' => null,
             ],
-            'deletado_em' => [
+            'deleted_at' => [
                 'type' => 'DATETIME',
                 'null' => true,
                 'default' => null,
@@ -51,14 +49,14 @@ class CriaTabelaEventos extends Migration
         ]);
 
         $this->forge->addKey('id', true);
-        $this->forge->addForeignKey('fornecedor_id', 'fornecedores', 'id');
-        $this->forge->createTable('contas_pagar');
+        $this->forge->addForeignKey('conta_id', 'contas_pagar', 'id', 'CASCADE', 'CASCADE');
+        $this->forge->createTable('eventos');
     }
 
     public function down()
     {
 
-        $this->forge->dropTable('contas_pagar');
-        
+        $this->forge->dropTable('eventos');
+    }     
     
 }

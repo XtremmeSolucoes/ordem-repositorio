@@ -40,5 +40,14 @@ class ContaPagar extends Entity
         }
         
     }
+
+    public function defineDataVencimentoEvento() : int
+    {
+        
+        $dataAtualConvertida = $this->mutateDate(date('Y-m-d'));
+
+        return $dataAtualConvertida->difference($this->data_vencimento)->getDays();
+
+    }
   
 }
