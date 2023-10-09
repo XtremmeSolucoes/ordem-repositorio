@@ -43,7 +43,9 @@ $routes->group('contas', function($routes)
 {
     $routes->add('/', 'ContasPagar::index');
     $routes->add('recuperacontas', 'ContasPagar::recuperaContas');
+
     $routes->add('buscaFornecedores', 'ContasPagar::buscaFornecedores');
+
     $routes->add('exibir/(:segment)', 'ContasPagar::exibir/$1');
     $routes->add('editar/(:segment)', 'ContasPagar::editar/$1');
     $routes->add('criar/', 'ContasPagar::criar');
@@ -52,9 +54,28 @@ $routes->group('contas', function($routes)
     $routes->post('cadastrar', 'ContasPagar::cadastrar');
     $routes->post('atualizar', 'ContasPagar::atualizar');
 
+    //Método post e GET para EXCLUSÃO dos dados
     $routes->match(['get', 'post'], 'excluir/(:segment)', 'ContasPagar::excluir/$1');
 
 });
+
+// Agrupando as rotas do controller Formas de Pagamentos
+$routes->group('formas', function($routes)
+{
+    $routes->add('/', 'FormasPagamentos::index');
+    $routes->add('recuperaformas', 'FormasPagamentos::recuperaFormas');
+
+    $routes->add('exibir/(:segment)', 'FormasPagamentos::exibir/$1');
+    $routes->add('editar/(:segment)', 'FormasPagamentos::editar/$1');
+    $routes->add('criar/', 'FormasPagamentos::criar');
+
+    //Método post para atualização dos dados
+    $routes->post('cadastrar', 'FormasPagamentos::cadastrar');
+    $routes->post('atualizar', 'FormasPagamentos::atualizar');
+
+    //Método post e GET para EXCLUSÃO dos dados
+    $routes->match(['get', 'post'], 'excluir/(:segment)', 'FormasPagamentos::excluir/$1');
+});    
 
 /*
  * --------------------------------------------------------------------

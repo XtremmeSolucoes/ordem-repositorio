@@ -4,10 +4,9 @@ namespace App\Entities;
 
 use CodeIgniter\Entity\Entity;
 
-class Fornecedor extends Entity
+class FormaPagamento extends Entity
 {
-    protected $dates   = 
-    [
+    protected $dates   = [
         'criado_em', 
         'atualizado_em', 
         'deletado_em'
@@ -18,11 +17,11 @@ class Fornecedor extends Entity
 
         if($this->ativo == true)
         {
-            return '<i class="fa fa-unlock-alt text-success" ></i>&nbsp;Ativo';
+            return '<i class="fa fa-unlock-alt text-success" ></i>&nbsp;Ativa';
         }
         if($this->ativo == false)
         {
-            return '<i class="fa fa-lock text-warning"></i>&nbsp;Inativo';
+            return '<i class="fa fa-lock text-warning"></i>&nbsp;Inativa';
         }
     }
 }
