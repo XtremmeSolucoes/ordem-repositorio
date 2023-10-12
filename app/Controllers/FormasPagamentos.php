@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
+use App\Entities\FormaPagamento;
 
 class FormasPagamentos extends BaseController
 {
@@ -52,6 +53,54 @@ class FormasPagamentos extends BaseController
         return $this->response->setJSON($retorno);
     }
 
+    public function criar()
+    {
+        $forma = new FormaPagamento();
+
+        $data = [
+            'titulo' => 'Criando nova Forma de Pagamento',
+            'forma' => $forma,
+        ];
+
+        return view('FormasPagamentos/criar', $data);
+    }
+
+
+    public function cadastrar()
+    {
+        if (!$this->request->isAJAX()) {
+            return redirect()->back();
+        }
+
+        // envio do token do form
+        $retorno['token'] = csrf_hash();
+
+        // recuperar o post da requisição
+
+        $post = $this->request->getPost();
+
+        $forma = new FormaPagamento($post);
+
+        if ($this->formaPagamentoModel->save($forma)) {
+
+            session()->setFlashdata('sucesso', 'Dados salvos com sucesso!');
+
+            $retorno['id'] = $this->formaPagamentoModel->getInsertID();
+
+            return $this->response->setJSON($retorno);
+        }
+
+        //retorno de erros de validação
+
+        $retorno['erro'] = 'Verifique os erros abaixo e tente novamente';
+        $retorno['erros_model'] = $this->formaPagamentoModel->errors();
+
+        // retorno para o ajax request
+        return $this->response->setJSON($retorno);
+
+    }
+
+
     public function exibir(int $id = null)
     {
         $forma = $this->buscarFormaOu404($id);
@@ -82,7 +131,88 @@ class FormasPagamentos extends BaseController
         return view('FormasPagamentos/editar', $data);
     }
 
-    
+    public function atualizar()
+    {
+        if (!$this->request->isAJAX()) {
+            return redirect()->back();
+        }
+        // envio do token do form
+        $retorno['token'] = csrf_hash();
+
+        // recuperar o post da requisição
+
+        $post = $this->request->getPost();
+
+
+        //validamos a exixtencia do usuário 
+
+        $forma = $this->buscarFormaOu404($post['id']);
+
+        //Proteção contra html inject
+
+        if ($forma->id < 3) {
+
+            $retorno['erro'] = 'Verifique os erros abaixo e tente novamente';
+            $retorno['erros_model'] = ['forma' => 'A Forma de Pagamento <b class="text-white">' . esc($forma->nome) . '</b> não pode ser editada ou excluída!'];
+            return $this->response->setJSON($retorno);
+        }
+
+        $forma->fill($post);
+
+        if ($forma->hasChanged() === false) {
+
+            $retorno['info'] = 'Não existem dados para serem atualizados!';
+            return $this->response->setJSON($retorno);
+        }
+
+        if ($this->formaPagamentoModel->save($forma)) {
+
+            session()->setFlashdata('sucesso', 'Dados salvos com sucesso!');
+
+            return $this->response->setJSON($retorno);
+        }
+
+        //retorno de erros de validação
+
+        $retorno['erro'] = 'Verifique os erros abaixo e tente novamente';
+        $retorno['erros_model'] = $this->formaPagamentoModel->errors();
+
+        // retorno para o ajax request
+        return $this->response->setJSON($retorno);
+
+    }
+
+    public function excluir(int $id = null)
+    {
+        $forma = $this->buscarFormaOu404($id);
+
+        if ($forma->id < 3) {
+
+            return redirect()->to(site_url("formas/exibir/$forma->id"))->with("atencao", "A forma de pagamento <b>$forma->nome</b> não pode ser editada ou excluida!");
+          
+        }
+
+        if ($this->request->getMethod() === 'post') {
+
+            if ($forma->id < 3) {
+
+                return redirect()->to(site_url("formas/exibir/$forma->id"))->with("atencao", "A forma de pagamento <b>$forma->nome</b> não pode ser editada ou excluida!");
+              
+            }
+
+            $this->formaPagamentoModel->delete($forma->id);
+            return redirect()->to(site_url("formas"))->with("sucesso", "A forma de pagamento <b>$forma->nome</b> excluida com sucesso!");
+
+
+        }
+
+        $data = [
+            'titulo' => 'Excluindo a Forma de Pagamento '. esc($forma->nome),
+            'forma' => $forma,
+        ];
+
+        return view('FormasPagamentos/excluir', $data);
+    }
 
     /*-------------------------------------Métodos privados------------------------------*/
 

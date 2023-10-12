@@ -32,7 +32,7 @@ class FormaPagamentoModel extends Model
         'nome' => [
             'required' => 'O campo Nome é obrigatório!',          
             'max_length' => 'O campo Nome precisa ter no máximo 120 caractéres!',
-            'is_unique' => 'Esse Nome já está cadastrado para outro Grupo, por favor escolha um Nome diferente!',
+            'is_unique' => 'Esse Nome já está cadastrado para outra Forma de Pagamento, por favor escolha um Nome diferente!',
         ],
         'descricao' => [
             'required' => 'O campo Descrição é obrigatório!',
