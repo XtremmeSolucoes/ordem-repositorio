@@ -54,7 +54,7 @@ class OrdemModel extends Model
 
         return $this->select($atributos)
             ->join('clientes', 'clientes.id = ordens.cliente_id')
-            ->orderBy('ordens.situacao', 'ASC')
+            ->orderBy('ordens.id', 'DESC')
             ->findAll();
     }
 
