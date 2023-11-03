@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Controllers\Itens;
 use CodeIgniter\Model;
 
 class ItemModel extends Model
@@ -96,5 +97,58 @@ class ItemModel extends Model
         } while ($this->countAllResults() > 1);
 
         return $codigoInterno;
+    }
+
+    /**
+     * Método responsável por recuperar os itens de acordo com o termo digitando no autocomplete da view de ordem de serviço
+     * 
+     * @param string|null $term
+     * @return array
+     */
+
+    public function pesquisaItens(string $term = null) : array
+    {
+
+        if ($term === null) {
+
+            return [];
+            
+        }
+
+        $atributos = [
+            'itens.*',
+            'itens_imagens.imagem',
+        ];
+
+        $itens = $this->select($atributos)
+                      ->like('itens.nome', $term)
+                      ->orLike('itens.codigo_interno', $term)
+                      ->join('itens_imagens', 'itens_imagens.item_id = itens.id', 'LEFT') //LEFT PPARA OS ITENS SEM IMAGENM SEREM RECUPERADOS 
+                      ->where('itens.ativo', true)    
+                      ->where('deletado_em', null)
+                      ->groupBy('itens.nome') // Acrescentem essa linha para não repetir os registros
+                      ->findAll();
+        
+        if ($itens === null) {
+
+            //Nenhum item combina com o termo digitado
+            return [];
+            
+        } 
+        //verifico se existe nas opções encontradas algum item do tipo produto que esteja com estoque abaixo de 1
+        
+        foreach ($itens as $key => $item) {
+
+            if ($item->tipo === 'produto' && $item->estoque < 1) {
+
+                unset($itens[$key]);
+               
+            }
+           
+        }
+
+        // retorno o array de itens 
+        return $itens;
+        
     }
 }

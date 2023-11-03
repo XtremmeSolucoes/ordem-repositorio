@@ -53,7 +53,7 @@
 
                         <hr class="border-secondary">
 
-                        <?php if ($ordem->ordens === null) : ?>
+                        <?php if ($ordem->itens === null) : ?>
 
                             <div class="contributions py-3">
 

@@ -34,7 +34,7 @@ class OrdemItemModel extends Model
 
         return $this->select($atributos)
                     ->join('itens', 'itens.id = ordens_itens.item_id')
-                    ->where('ordens_itens.item_id', $ordem_id)
+                    ->where('ordens_itens.ordem_id', $ordem_id)
                     ->groupBy('itens.nome')
                     ->orderBy('itens.tipo', 'ASC')
                     ->findAll();

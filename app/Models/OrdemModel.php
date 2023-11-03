@@ -65,7 +65,7 @@ class OrdemModel extends Model
      * @param string|null $codigo
      * @return object|PageNotFoundException
      */
-    public function buscaOrdemOu404(string $codigo)
+    public function buscaOrdemOu404(string $codigo = null)
     {
 
         if ($codigo === null) {
