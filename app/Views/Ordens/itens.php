@@ -40,7 +40,7 @@ Dessa forma não estrapola o layout
 <div class="row">
 
     <div class="col-lg-12">
-        
+
         <div class="block">
 
             <button type="button" class="btn btn-outline-secondary btn-lg" data-toggle="modal" data-target="#adicionarItensModal">
@@ -62,36 +62,98 @@ Dessa forma não estrapola o layout
 
             <?php else : ?>
 
-                <div class="table-responsive">
+                <div class="table-responsive my-5">
 
                     <table class="table table-bordered">
                         <thead>
                             <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">First</th>
-                                <th scope="col">Last</th>
-                                <th scope="col">Handle</th>
+                                <th scope="col">Item</th>
+                                <th scope="col">Tipo</th>
+                                <th scope="col">Preço</th>
+                                <th scope="col">Qtde</th>
+                                <th scope="col">Subtotal</th>
+                                <th scope="col" class="text-center">Remover</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <th scope="row">1</th>
-                                <td>Mark</td>
-                                <td>Otto</td>
-                                <td>@mdo</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">2</th>
-                                <td>Jacob</td>
-                                <td>Thornton</td>
-                                <td>@fat</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">3</th>
-                                <td colspan="2">Larry the Bird</td>
-                                <td>@twitter</td>
-                            </tr>
+                            <?php
+
+                            $valorProdutos = 0;
+                            $valorServicos = 0;
+
+                            ?>
+
+                            <?php foreach ($ordem->itens as $item) : ?>
+                                <?php
+
+                                if ($item->tipo === 'produto') {
+
+                                    $valorProdutos += $item->preco_venda * $item->item_quantidade;
+                                } else {
+
+                                    $valorServicos += $item->preco_venda * $item->item_quantidade;
+                                }
+
+                                $hiddenAcoes = [
+                                    'id_principal' => $item->id_principal,
+                                    'item_id' => $item->id,
+                                ];
+
+                                ?>
+                                <tr>
+                                    <th scope="row"><?php echo ellipsize($item->nome, 32, .5); ?></th>
+                                    <td><?php echo esc(ucfirst($item->tipo)); ?></td>
+                                    <td>R$ <?php echo esc(number_format($item->preco_venda, 2)); ?></td>
+                                    <td>
+
+                                        <?php echo form_open("ordensitens/atualizarquantidade/$ordem->codigo", ['class' => 'form-inline'], $hiddenAcoes); ?>
+
+                                        <input style="max-width: 80px !important" type="number" name="item_quantidade" class="form-control form-control-sm" value="<?php echo $item->item_quantidade; ?>" required>
+
+                                        <button type="submit" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-refresh"></i></button>
+                                        <?php echo form_close(); ?>
+                                    </td>
+                                    <td>R$ <?php echo esc(number_format($item->item_quantidade * $item->preco_venda, 2)); ?></td>
+                                    <td class="pt-2 text-center">
+
+                                        <?php
+
+                                        $atributosRemover = [
+                                            'class' => 'form-inline',
+                                            'onClick' => 'return confirm("Tem certeza da exclusão?")',
+                                        ];
+
+                                        ?>
+                                        <?php echo form_open("ordensitens/removeritem/$ordem->codigo", $atributosRemover, $hiddenAcoes); ?>
+
+                                            <button type="submit" class="btn btn-outline-danger btn-sm ml-2 mx-auto"><i class="fa fa-times"></i></button>
+
+                                        <?php echo form_close(); ?>
+
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
                         </tbody>
+                        <tfoot>
+                            <tr>
+                                <td class="text-right font-weight-bold" colspan="4">
+                                       <label>Valor Produto:</label>     
+                                </td>
+                                <td class="text-rigth font-weight-bold">R$ <?php echo esc(number_format($valorProdutos, 2)); ?></td>
+                            </tr>
+                            <tr>
+                                <td class="text-right font-weight-bold" colspan="4">
+                                       <label>Valor Serviços:</label>     
+                                </td>
+                                <td class="text-rigth font-weight-bold">R$ <?php echo esc(number_format($valorServicos, 2)); ?></td>
+                            </tr>
+                            <tr>
+                                <td class="text-right font-weight-bold" colspan="4">
+                                       <label>Valor Total:</label>     
+                                </td>
+                                <td class="text-rigth font-weight-bold">R$ <?php echo esc(number_format($valorServicos + $valorProdutos, 2)); ?></td>
+                            </tr>
+                        </tfoot>
                     </table>
 
                 </div>
@@ -135,7 +197,7 @@ Dessa forma não estrapola o layout
                 </div>
             </div>
 
-            <a href="<?php echo site_url("ordens"); ?>" class="btn btn-secondary btn-sm ml-2">Voltar</a>
+            <a href="<?php echo site_url("ordens/detalhes/$ordem->codigo"); ?>" class="btn btn-secondary btn-sm ml-2">Voltar</a>
 
         </div> <!-- ./ block -->
     </div>

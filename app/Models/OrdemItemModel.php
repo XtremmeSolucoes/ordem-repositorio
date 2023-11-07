@@ -40,4 +40,12 @@ class OrdemItemModel extends Model
                     ->findAll();
     }
 
+    public function atualizarQuantidadeItem(object $ordemItem)
+    {
+        return $this->set('item_quantidade', $ordemItem->item_quantidade)
+                    ->where('id', $ordemItem->id)
+                    ->update();
+
+    }
+
 }

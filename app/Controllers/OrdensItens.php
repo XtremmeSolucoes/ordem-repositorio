@@ -94,6 +94,153 @@ class OrdensItens extends BaseController
         return $this->response->setJSON($retorno);
     }
 
+    public function atualizarQuantidade(string $codigo = null)
+    {
+
+       if ($this->request->getMethod() !== 'post') {
+
+        return redirect()->back();
+        
+       }
+
+        $validacao = service('validation');
+
+        $regras = [
+            'item_id' => 'required',
+            'item_quantidade' => 'required|greater_than[0]',
+            'id_principal' => 'required|greater_than[0]', //primary key da tabela ordens_itens
+        ];
+
+        $mensagens = [   // Errors
+            'item_id' => [
+                'required' => 'Não conseguimos identificar qual é o item a ser atualizado!',
+
+            ],
+            'item_quantidade' => [
+                'required' => 'Por favor escolha uma quantidade maior que zero!',
+                'greater_than' => 'Por favor escolha uma quantidade maior que zero!',
+
+            ],
+            'id_principal' => [
+                'required' => 'Não conseguimos processar a sua requisição!',
+                'greater_than' => 'Não conseguimos processar a sua requisição!',
+
+            ],
+        ];
+
+        $validacao->setRules($regras, $mensagens);
+
+        if ($validacao->withRequest($this->request)->run() === false) {
+
+            return redirect()->back()->with('atencao', 'Verifique os erros e tente novamente')
+                                     ->with('erros_model', $validacao->getErrors());   
+
+        }
+
+        // recuperar o post da requisição
+        $post = $this->request->getPost();
+
+        //busco a ordem de serviço 
+        $ordem = $this->ordemModel->buscaOrdemOu404($codigo);
+
+        //Validamos a existência do Item
+        $item = $this->buscarItemOu404($post['item_id']);
+
+        //validamos a existencia do registro principal
+        $ordemItem = $this->buscarOrdemItemOu404($post['id_principal'], $ordem->id);
+
+
+
+        if ($item->tipo === 'produto' && $post['item_quantidade'] > $item->estoque) {
+
+            return redirect()->back()->with('atencao', 'Verifique os erros e tente novamente')
+                                     ->with('erros_model', ['estoque' => "Temos apenas <b class='text-white'>$item->estoque</b> em estoque do item $item->nome"]);
+
+        }
+
+        if ($post['item_quantidade'] === $ordemItem->item_quantidade) {
+
+            return redirect()->back()->with('info', 'Informe uma quantidade diferente da existente!');
+            
+        }
+
+        //Objeto já está alterado com as contidades modificadas
+        $ordemItem->item_quantidade = $post['item_quantidade'];
+
+        if ($this->ordemItemModel->atualizarQuantidadeItem($ordemItem)) {
+
+            return redirect()->back()->with('sucesso', 'Quantidade atualizada com sucesso!');
+            
+        }
+
+        return redirect()->back()->with('atencao', 'Verifique os erros e tente novamente')
+                                 ->with('erros_model', $this->ordemItemModel->errors());
+
+        
+    }
+
+    public function removerItem(string $codigo = null)
+    {
+
+       if ($this->request->getMethod() !== 'post') {
+
+        return redirect()->back();
+        
+       }
+
+        $validacao = service('validation');
+
+        $regras = [
+            'item_id' => 'required',
+            'id_principal' => 'required|greater_than[0]', //primary key da tabela ordens_itens
+        ];
+
+        $mensagens = [   // Errors
+            'item_id' => [
+                'required' => 'Não conseguimos identificar qual é o item a ser Excçuído!',
+
+            ],
+            'id_principal' => [
+                'required' => 'Não conseguimos processar a sua requisição. Escolha o item a ser removido e tente novamente!',
+                'greater_than' => 'Não conseguimos processar a sua requisição. Escolha o item a ser removido e tente novamente!',
+
+            ],
+        ];
+
+        $validacao->setRules($regras, $mensagens);
+
+        if ($validacao->withRequest($this->request)->run() === false) {
+
+            return redirect()->back()->with('atencao', 'Verifique os erros e tente novamente')
+                                     ->with('erros_model', $validacao->getErrors());   
+
+        }
+
+        // recuperar o post da requisição
+        $post = $this->request->getPost();
+
+        //busco a ordem de serviço 
+        $ordem = $this->ordemModel->buscaOrdemOu404($codigo);
+
+        //Validamos a existência do Item
+        $item = $this->buscarItemOu404($post['item_id']);
+
+        //validamos a existencia do registro principal
+        $ordemItem = $this->buscarOrdemItemOu404($post['id_principal'], $ordem->id);
+
+        if ($this->ordemItemModel->delete($ordemItem->id)) {
+
+            return redirect()->back()->with('sucesso', 'Item removido com sucesso!');
+            
+        }
+
+        return redirect()->back()->with('atencao', 'Verifique os erros e tente novamente')
+                                 ->with('erros_model', $this->ordemItemModel->errors());
+
+        
+    }
+
+
     public function adicionarItem()
     {
 
@@ -208,6 +355,23 @@ class OrdensItens extends BaseController
     }
 
     /**
+     * Método  que recupera o REGISTRO PRINCIPAL
+     * 
+     * @param interger $id_principal
+     * @param interger $ordem_id
+     * @return Exceptions|object
+     */
+
+     private function buscarOrdemItemOu404(int $id_principal = null, int $ordem_id)
+     {
+         if (!$id_principal || !$ordemItem = $this->ordemItemModel->where('id', $id_principal)->where('ordem_id', $ordem_id)->first()) {
+             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Não encontramos o registro principal $id_principal");
+         }
+         return $ordemItem;
+     }
+
+
+    /**
      * Método resposável por verificar se a ordem já possui o Item
      *@param integer $ordem_id
      *@param integer $item_id
@@ -227,4 +391,6 @@ class OrdensItens extends BaseController
         //Ordem já possui o item
         return true;
     }
+
+    
 }
