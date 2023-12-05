@@ -193,9 +193,9 @@
 
                     <a class="dropdown-item" href="<?php echo site_url("ordensevidencias/evidencias/$ordem->codigo"); ?>">Evidências da Ordem</a>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="<?php echo site_url("ordens/email/$ordem->codigo"); ?>">Enviar por E-mail</a>
+                    <a id="btn-enviar-email" class="dropdown-item" href="<?php echo site_url("ordens/email/$ordem->codigo"); ?>">Enviar por E-mail</a>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="<?php echo site_url("ordens/gerapdf/$ordem->codigo"); ?>">Gerar PDF</a>
+                    <a class="dropdown-item" href="<?php echo site_url("ordens/gerarpdf/$ordem->codigo"); ?>">Gerar PDF</a>
                     <div class="dropdown-divider"></div>
 
                     <?php if ($ordem->deletado_em === null) : ?>
@@ -217,4 +217,24 @@
 
 <?= $this->section('scripts') ?>
 <!-- aqui os scripts da view  -->
+
+<script src="<?php echo site_url('recursos/vendor/loadingoverlay/loadingoverlay.min.js') ?>"></script>
+
+<script>
+    $(document).ready(function() {
+
+        $("#btn-enviar-email").on('click', function() {
+            
+            $.LoadingOverlay("show", {
+
+                Image: "",
+                text: "Enviando E-mail...",
+
+            });
+
+        });
+
+    });
+</script>
+
 <?= $this->endSection() ?>

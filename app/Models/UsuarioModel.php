@@ -155,4 +155,46 @@ class UsuarioModel extends Model
                     ->update();
 
     }
+
+      /**
+     * MÉTODO RESPONSÁVEL POR RECUPERAR OS TÉCNICOS 
+     * @param string $termo
+     * @return null|array
+     */
+
+    public function recuperaResponsaveisParaOrdem(string $termo = null)
+    {
+
+        if ($termo === null) {
+
+            return [];
+            
+        }
+
+        $atributos = [
+            'usuarios.id',
+            'usuarios.nome',
+        ];
+
+        $responsaveis = $this->select($atributos)
+                    ->join('grupos_usuarios', 'grupos_usuarios.usuario_id = usuarios.id')
+                    ->join('grupos', 'grupos.id = grupos_usuarios.grupo_id')
+                    ->like('usuarios.nome', $termo)
+                    ->where('usuarios.ativo', true)
+                    ->where('grupos.exibir', true)
+                    ->where('grupos.id !=', 4)// bloqueio de usuario clientes para não escolher como responsável
+                    ->where('grupos.deletado_em', null)
+                    ->where('usuarios.deletado_em', null)
+                    ->groupBy('usuarios.nome')
+                    ->findAll();
+
+        if ($responsaveis === null) {
+
+            return [];
+                        
+        } 
+        
+        return $responsaveis;
+
+    }
 }

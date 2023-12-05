@@ -38,6 +38,10 @@ $routes->get('logout', 'Login::logout');
 
 $routes->get('esqueci', 'Password::esqueci');
 
+/**
+ * @todo criar a rota para ordens/minhas-ordens que é enviado no e-mail para o cliente
+ */
+
 // Agrupando as rotas do controller ContasPagar
 $routes->group('contas', function($routes)
 {
